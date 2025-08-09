@@ -31,6 +31,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'api',
+    'users',
+    'rest_framework',
+    'rest_framework_simplejwt', 
+
+        "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,6 +46,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+        "corsheaders.middleware.CorsMiddleware",
+
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -109,6 +117,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+CORS_ALLOWED_ORIGINS=['http://localhost:5173',]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -120,3 +129,18 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Keep this short for security
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),   # Increase this for better UX
+}
+# Configure REST_FRAMEWORK settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
