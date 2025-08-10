@@ -26,7 +26,7 @@ class Profile(models.Model):
     ])
     
     # New field to store the specific daily calorie intake the user chooses.
-    daily_calorie_intake = models.FloatField(null=True, blank=True)
+    daily_calorie_intake = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     
     # Profile picture field that requires Pillow to be installed.
     # profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)

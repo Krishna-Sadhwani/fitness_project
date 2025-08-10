@@ -13,4 +13,6 @@ urlpatterns = [
     path("register/", UserViews.UserRegistrationView.as_view(), name="register"),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', include('meals.urls')), # Include the new meals app URLs
+
 ]
