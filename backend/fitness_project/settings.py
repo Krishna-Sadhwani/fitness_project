@@ -19,6 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 NUTRITIONIX_APP_ID = config('NUTRITIONIX_APP_ID')
 NUTRITIONIX_API_KEY = config('NUTRITIONIX_API_KEY')
+GROQ_API_KEY = config('GROQ_API_KEY')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -37,6 +39,8 @@ INSTALLED_APPS = [
     'api',
     'users',
     'meals',
+    'chatbot',
+    'workouts',
     'rest_framework',
     'rest_framework_simplejwt', 
 
@@ -151,3 +155,4 @@ REST_FRAMEWORK = {
 # settings.py
 
 # ...
+
