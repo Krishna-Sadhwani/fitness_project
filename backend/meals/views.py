@@ -26,11 +26,40 @@ class MealViewSet(viewsets.ModelViewSet):
         """
         return Meal.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         """
-        Automatically links the new meal to the current user.
+        Create a meal if one does not exist for the given date and meal_type.
+        If it exists, append the provided meal_items to the existing meal and
+        return the updated meal. Ensures only one meal per type per day.
         """
-        serializer.save(user=self.request.user)
+        user = request.user
+        # Validate the incoming payload with existing serializer to reuse nested item validation
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        validated = serializer.validated_data
+        meal_type = validated.get('meal_type')
+        meal_date = validated.get('date')
+        incoming_items = validated.get('meal_items', [])
+
+        # Try to find an existing meal for this user/date/type
+        existing_meal = Meal.objects.filter(user=user, meal_type=meal_type, date=meal_date).first()
+
+        if existing_meal:
+            # Append new items to the existing meal
+            for item_data in incoming_items:
+                # item_data already has 'food_item' and 'quantity_g' from validation
+                MealItem.objects.create(meal=existing_meal, **item_data)
+
+            # Serialize and return the updated meal
+            output = self.get_serializer(existing_meal)
+            return Response(output.data, status=status.HTTP_200_OK)
+
+        # No existing meal: create a new one linked to current user
+        new_meal = serializer.save(user=user)
+        output = self.get_serializer(new_meal)
+        headers = self.get_success_headers(output.data)
+        return Response(output.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class FoodSearchAPIView(APIView):
     """

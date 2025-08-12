@@ -10,6 +10,8 @@ from rest_framework.views import APIView
 # from .serializers import UserRegistrationSerializer
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from .utils import calculate_calorie_suggestions
+from .serializers import CalorieGoalResponseSerializer
 
 from .serializers import UserRegistrationSerializer,ProfileSerializer
 # Create your views here.
@@ -73,5 +75,32 @@ class ProfileViewSet(viewsets.ModelViewSet):
         """
         serializer.save(user=self.request.user)
     
+class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
+    """
+    An endpoint to provide personalized daily calorie intake suggestions
+    based on a user's profile and fitness goals.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """
+        Returns a list of calorie suggestions for the authenticated user.
+        """
+        user = request.user
+        try:
+            # Calculate suggestions using our utility function
+            suggestion_data = calculate_calorie_suggestions(user.profile)
+            
+            # Serialize the data for the response
+            serializer = CalorieGoalResponseSerializer(suggestion_data)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except ValueError as e:
+            # Handle cases where the profile is incomplete
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Handle other potential errors
+            return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

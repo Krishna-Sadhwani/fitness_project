@@ -1,8 +1,10 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 function Header() {
-  
-   return (
+  const { accessToken, logout } = useAuth()
+  return (
     <header className="w-full bg-white shadow-sm">
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
@@ -28,20 +30,36 @@ function Header() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex gap-3">
-          <a
-            href="/login"
-            className="text-gray-600 hover:text-blue-600 font-medium"
-          >
-            Sign In
-          </a>
-          <a
-            href="/signup"
-            className="bg-gradient-to-r from-green-400 to-blue-400 text-white rounded px-4 py-2 font-semibold shadow hover:from-green-500 hover:to-blue-500 transition"
-          >
-            Get Started
-          </a>
-        </div>
+         <div className="flex gap-3 items-center">
+           {accessToken ? (
+             <>
+               <Link to="/profile" className="text-gray-600 hover:text-blue-600 font-medium">
+                 Profile
+               </Link>
+               <button
+                 onClick={logout}
+                 className="bg-red-500 text-white rounded px-3 py-2 font-semibold hover:bg-red-600 transition"
+               >
+                 Logout
+               </button>
+             </>
+           ) : (
+             <>
+               <Link
+                 to="/login"
+                 className="text-gray-600 hover:text-blue-600 font-medium"
+               >
+                 Sign In
+               </Link>
+               <Link
+                 to="/register"
+                 className="bg-gradient-to-r from-green-400 to-blue-400 text-white rounded px-4 py-2 font-semibold shadow hover:from-green-500 hover:to-blue-500 transition"
+               >
+                 Get Started
+               </Link>
+             </>
+           )}
+         </div>
       </nav>
     </header>
   );

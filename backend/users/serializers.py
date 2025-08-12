@@ -44,7 +44,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'height', 'weight','age','gender', 'weight_goal', 'calorie_goal','recommended_calories','daily_calorie_intake'] #'profile_picture']
+        fields = ['id', 'user', 'height', 'weight','age','gender', 'weight_goal', 'calorie_goal_option','recommended_calories','daily_calorie_intake'] #'profile_picture']
 
     def validate(self, data):
         """
@@ -58,7 +58,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         request_weight = data.get('weight', instance_weight)
         request_weight_goal = data.get('weight_goal')
         request_height=data.get('height')
-        request_calorie_goal = data.get('calorie_goal')
+        request_calorie_goal = data.get('calorie_goal_option')
 
         # Check that weight and weight_goal are positive numbers if they are provided
         if request_weight is not None and request_weight <= 0:
@@ -136,12 +136,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         calorie_deficits = {k: round(v) for k, v in calorie_deficits.items()}
         calorie_surplus = {k: round(v) for k, v in calorie_surplus.items()}
 
-        # Return the appropriate calorie recommendations based on the user's calorie_goal.
-        if obj.calorie_goal == 'deficit':
+        # Return the appropriate calorie recommendations based on the user's calorie goal selection.
+        if obj.calorie_goal_option == 'deficit':
             return {'options': calorie_deficits, 'goal_type': 'deficit'}
-        elif obj.calorie_goal == 'surplus':
+        elif obj.calorie_goal_option == 'surplus':
             return {'options': calorie_surplus, 'goal_type': 'surplus'}
         else:
             return {'options': {'maintain': maintain_calories}, 'goal_type': 'maintain'}
 
+class CalorieSuggestionSerializer(serializers.Serializer):
+    """Serializer for a single calorie suggestion."""
+    weekly_goal = serializers.CharField()
+    daily_calories = serializers.IntegerField()
 
+class CalorieGoalResponseSerializer(serializers.Serializer):
+    """Serializer for the final response from our suggestions endpoint."""
+    maintenance_calories = serializers.IntegerField()
+    goal = serializers.CharField()
+    suggestions = CalorieSuggestionSerializer(many=True)

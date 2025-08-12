@@ -112,7 +112,7 @@ export default function Register() {
           {/* General Errors */}
           {errors.general && (
             <p className="text-red-500 text-sm mt-2 text-center">
-              {errors.general}
+              Please enter valid details
             </p>
           )}
 
