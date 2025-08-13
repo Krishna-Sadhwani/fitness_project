@@ -96,7 +96,7 @@ const Profile = () => {
           <option value="maintain">Maintain</option>
         </select>
         <input type="number" name="daily_calorie_intake" value={profile.daily_calorie_intake} onChange={handleChange} placeholder="Daily Calories (override)" className="border rounded px-3 py-2 md:col-span-2" />
-        <button type="submit" className="bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 md:col-span-2">Save</button>
+        <button type="submit" className="text-white rounded px-4 py-2 md:col-span-2 bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105">Save</button>
       </form>
 
       {/* Recommendations Section */}
@@ -114,7 +114,7 @@ const Profile = () => {
                   <p className="text-2xl font-bold">{recommendations.options?.maintain}</p>
                 </div>
                 <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2"
+                  className="text-white rounded px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105"
                   onClick={() => setProfile((p) => ({ ...p, daily_calorie_intake: String(recommendations.options?.maintain ?? '') }))}
                 >
                   Use
@@ -127,7 +127,7 @@ const Profile = () => {
                     <div className="text-sm text-gray-600">{label}</div>
                     <div className="text-2xl font-bold">{value}</div>
                     <button
-                      className="bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-2"
+                      className="text-white rounded px-3 py-2 bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105"
                       onClick={() => setProfile((p) => ({ ...p, daily_calorie_intake: String(value) }))}
                     >
                       Use

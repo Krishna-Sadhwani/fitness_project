@@ -154,3 +154,4 @@ class CalorieGoalResponseSerializer(serializers.Serializer):
     maintenance_calories = serializers.IntegerField()
     goal = serializers.CharField()
     suggestions = CalorieSuggestionSerializer(many=True)
+

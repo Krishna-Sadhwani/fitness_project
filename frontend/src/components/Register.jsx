@@ -44,11 +44,10 @@ export default function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-green-50 to-blue-50 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Create an Account
-        </h3>
+        <h3 className="text-2xl font-bold text-center mb-2 text-gray-800">Create an Account</h3>
+        <p className="text-center text-gray-500 text-sm mb-6">Join Fitkeep and start tracking today.</p>
 
         <form onSubmit={handleRegistration} className="space-y-4">
           {/* Username */}
@@ -58,7 +57,7 @@ export default function Register() {
               placeholder="Enter Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-light"
+              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {errors.username && (
               <p className="text-red-500 text-sm mt-1">{errors.username}</p>
@@ -72,7 +71,7 @@ export default function Register() {
               placeholder="Enter Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-light"
+              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -86,7 +85,7 @@ export default function Register() {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-light"
+              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -100,7 +99,7 @@ export default function Register() {
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-light"
+              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm mt-1">
@@ -111,9 +110,7 @@ export default function Register() {
 
           {/* General Errors */}
           {errors.general && (
-            <p className="text-red-500 text-sm mt-2 text-center">
-              Please enter valid details
-            </p>
+            <p className="text-red-600 text-sm mt-2 text-center bg-red-50 border border-red-100 rounded p-2">{errors.general}</p>
           )}
 
           {/* Success Message */}
@@ -128,9 +125,7 @@ export default function Register() {
             type="submit"
             disabled={loading}
             className={`w-full py-2 rounded-lg font-semibold text-white ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition"
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105'
             }`}
           >
             {loading ? "Please wait..." : "Register"}

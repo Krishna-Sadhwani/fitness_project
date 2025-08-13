@@ -3,6 +3,7 @@ import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import Header from './components/ui/Header'
+import Footer from './components/ui/Footer'
 import Register from './components/Register'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -36,6 +37,7 @@ function App() {
           }
         />
       </Routes>
+      <Footer/>
     </>
   )
 }

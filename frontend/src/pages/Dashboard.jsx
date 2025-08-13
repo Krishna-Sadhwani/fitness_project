@@ -144,7 +144,10 @@ const Dashboard = () => {
           {/* Summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-2xl bg-white p-4 shadow-sm">
-              <div className="text-gray-500 text-sm">Calories Eaten</div>
+              <div className="flex items-center gap-2 text-gray-500 text-sm">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-brandLight text-brand">🔥</span>
+                <span>Calories Eaten</span>
+              </div>
               <div className="text-3xl font-bold mt-1">
                 {Math.round(toNumber(daily.total_calories))}
                 <span className="text-gray-400 text-base"> kcal</span>
@@ -176,7 +179,10 @@ const Dashboard = () => {
             </div>
 
             <div className="rounded-2xl bg-white p-4 shadow-sm">
-              <div className="text-gray-500 text-sm">Calories Burned</div>
+              <div className="flex items-center gap-2 text-gray-500 text-sm">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-brandLight text-brand">🏋️‍♀️</span>
+                <span>Calories Burned</span>
+              </div>
               <div className="text-3xl font-bold mt-1">
                 {Math.round(toNumber(burned))}
                 <span className="text-gray-400 text-base"> kcal</span>
@@ -251,7 +257,7 @@ const Dashboard = () => {
                       <button
                         onClick={() => handleAddFoodToMeal(food)}
                         disabled={adding}
-                        className={`px-6 py-2 rounded text-white ${adding ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
+                        className={`px-6 py-2 rounded text-white ${adding ? 'bg-gray-400' : 'bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105'}`}
                       >
                         {adding ? 'Adding…' : 'Add Food Item'}
                       </button>

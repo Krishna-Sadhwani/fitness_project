@@ -1,28 +1,36 @@
 // src/pages/LandingPage.jsx
-import React from "react";
-import Button from "../components/ui/Button";
+import React from 'react'
+import Button from '../components/ui/Button'
+
 export default function LandingPage() {
   return (
-    <div className="w-full min-h-screen bg-gray-50 text-gray-800">
+    <div className="w-full min-h-screen bg-white text-gray-800">
       {/* Hero Section */}
       <section className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white py-20 px-6 md:px-16">
-        <div className="max-w-6xl mx-auto text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-            Stop Guessing, <br /> Start Achieving.
-          </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl">
-            Your all-in-one tool for intelligent calorie & macro tracking. 
-            Eat smarter, train better, and see results faster.
-          </p>
-          <div className="mt-6 flex flex-col md:flex-row gap-4 md:gap-6">
-           <Button class=" btn-light px-6 py-3" text="Join Now" url="/register"/>
-            <a
-              href="#features"
-              className="bg-transparent border border-white px-6 py-3 rounded font-semibold hover:bg-white hover:text-blue-600 transition text-center"
-            >
-              Learn More
-            </a>
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+              Minimal Calorie & Workout Tracker
+            </h1>
+            <p className="mt-4 text-lg md:text-xl max-w-2xl text-white/90">
+              Log meals, track calories and workouts, and publish your progress on a clean, distraction-free platform.
+            </p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-4">
+              <a href="/dashboard" className="px-6 py-3 rounded font-semibold text-black bg-white hover:brightness-105 transition text-center">
+                Start Tracking
+              </a>
+              <a href="#features" className="px-6 py-3 rounded font-semibold text-light bg-red text-center">
+                Explore features
+              </a>
+            </div>
+            <div className="mt-4 flex gap-6 text-white/80 text-sm">
+              <span>Calorie tracking</span>
+              <span>Meal logging</span>
+              <span>Workout tracking</span>
+              <span>AI nutritionist</span>
+            </div>
           </div>
+          <img src="/vite.svg" alt="App preview" className="w-full max-w-md justify-self-center opacity-90" />
         </div>
       </section>
 
@@ -51,36 +59,36 @@ export default function LandingPage() {
 
       {/* Features */}
       <section id="features" className="w-full py-16 px-6 md:px-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-10">Powerful Features for Lasting Results</h2>
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <div className="text-green-500 text-4xl mb-4">🍎</div>
-              <h3 className="font-semibold text-lg mb-2">Effortless Meal Tracking</h3>
-              <p className="text-gray-600">
-                Log meals in seconds and get accurate macro & calorie breakdowns instantly.
-              </p>
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-10">Everything you need, nothing you don’t</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">A focused toolkit for building healthy habits with clarity and ease.</p>
+          <div className="grid gap-6 md:grid-cols-4">
+            <div className="bg-white p-6 rounded-lg shadow border hover:shadow-lg transition text-left">
+              <div className="text-brand text-4xl mb-4">🔥</div>
+              <h3 className="font-semibold text-lg mb-2">Calorie tracking</h3>
+              <p className="text-gray-600">Smart goals and clear daily targets.</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <div className="text-blue-500 text-4xl mb-4">🏋️‍♂️</div>
-              <h3 className="font-semibold text-lg mb-2">Smart Workout Integration</h3>
-              <p className="text-gray-600">
-                Track calories burned and sync your workouts seamlessly with your goals.
-              </p>
+            <div className="bg-white p-6 rounded-lg shadow border hover:shadow-lg transition text-left">
+              <div className="text-brand text-4xl mb-4">🍽️</div>
+              <h3 className="font-semibold text-lg mb-2">Meal logging</h3>
+              <p className="text-gray-600">Quick entries with saved favorites.</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <div className="text-purple-500 text-4xl mb-4">🤖</div>
-              <h3 className="font-semibold text-lg mb-2">AI-Powered Nutritionist</h3>
-              <p className="text-gray-600">
-                Get personalized meal plans & tips from your AI coach, anytime, anywhere.
-              </p>
+            <div className="bg-white p-6 rounded-lg shadow border hover:shadow-lg transition text-left">
+              <div className="text-brand text-4xl mb-4">🏋️‍♂️</div>
+              <h3 className="font-semibold text-lg mb-2">Workout tracking</h3>
+              <p className="text-gray-600">Plan routines and track progress.</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow border hover:shadow-lg transition text-left">
+              <div className="text-brand text-4xl mb-4">🤖</div>
+              <h3 className="font-semibold text-lg mb-2">AI Nutritionist</h3>
+              <p className="text-gray-600">Personalized advice, anytime.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Social Proof */}
-      <section className="w-full py-16 px-6 md:px-16 bg-white">
+      <section className="w-full py-16 px-6 md:px-16 bg-white" id="blog">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-10">What Our Users Say</h2>
           <div className="grid gap-8 md:grid-cols-3">
@@ -107,21 +115,14 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="w-full py-16 px-6 md:px-16 bg-gradient-to-r from-green-400 to-blue-500 text-white text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Life?</h2>
-        <p className="mb-6 text-lg">Join thousands of others achieving their goals with our app.</p>
-        <a
-          href="/signup"
-          className="bg-white text-blue-600 font-bold px-8 py-3 rounded shadow hover:bg-gray-100 transition"
-        >
-          Sign Up for Free
-        </a>
+      <section className="w-full py-16 px-6 md:px-16 bg-gradient-to-br from-brand to-brandDark text-white text-center">
+        <h2 className="text-3xl font-bold mb-4">Ready to start?</h2>
+        <p className="mb-6 text-lg">Join others building sustainable habits with Fitkeep.</p>
+        <a href="/register" className="px-8 py-3 rounded font-bold text-black bg-white transition">Get started</a>
       </section>
 
       {/* Footer */}
-      <footer className="w-full text-center text-gray-500 py-6 text-sm bg-gray-100">
-        © 2025 Healthily. All rights reserved.
-      </footer>
+      
     </div>
   );
 }

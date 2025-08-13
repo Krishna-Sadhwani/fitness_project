@@ -17,5 +17,5 @@ path("",include('chatbot.urls')),  # Include the chatbot app URLs
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('meals.urls')), # Include the new meals app URLs
     path('', include('workouts.urls')),  # Include the workouts app URLs
-
+path("blog/",include('blog.urls')),  # Include the blog app URLs
 ]

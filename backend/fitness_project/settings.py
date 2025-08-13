@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'workouts',
     'rest_framework',
     'rest_framework_simplejwt', 
-
+'blog',
+'daily_data',
         "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
