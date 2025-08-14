@@ -1,86 +1,65 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import generics, viewsets, status, permissions
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Profile
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
-# from .serializers import UserRegistrationSerializer
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from .serializers import UserRegistrationSerializer, ProfileSerializer, CalorieGoalResponseSerializer
 from .utils import calculate_calorie_suggestions
-from .serializers import CalorieGoalResponseSerializer
 
-from .serializers import UserRegistrationSerializer,ProfileSerializer
-# Create your views here.
-# users/views.py
-
-
-# users/views.py
-
-
+# --- User Registration View ---
+# This view handles the creation of a new user and their associated profile.
 
 class UserRegistrationView(generics.CreateAPIView):
     """
-    A view to handle user registration.
-    This view also creates an empty profile for the new user.
+    An endpoint for user registration.
+    This view also creates an empty profile for the new user upon successful registration.
     """
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny] # Anyone can access this view to register.
     
     def post(self, request, *args, **kwargs):
-        # The user will be created first by the serializer
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Automatically create a new Profile instance for the user
-        # This prevents a 404 error when a new user tries to access their profile.
+        # Automatically create a new, empty Profile instance for the user.
+        # This ensures that every user has a profile from the moment they sign up.
         Profile.objects.create(user=user)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-class ProfileViewSet(viewsets.ModelViewSet):
+# --- User Profile View (Updated) ---
+# This view is for fetching (GET) and updating (PATCH/PUT) the logged-in user's profile.
+# It replaces the previous ProfileViewSet for simplicity and security.
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
     """
-    A single viewset to handle all CRUD operations for the authenticated user's profile.
-    - POST: To create a new profile.
-    - GET: To retrieve the profile.
-    - PUT/PATCH: To update the profile.
+    An endpoint for the logged-in user to view and update their own profile.
+    - GET: Returns the user's profile.
+    - PATCH: Partially updates the user's profile (e.g., only changing the weight).
+    - PUT: Fully updates the user's profile.
     """
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """
-        Ensures that a user can only access their own profile.
-        """
-        if self.request.user.is_authenticated:
-            return Profile.objects.filter(user=self.request.user)
-        return Profile.objects.none()
+    permission_classes = [permissions.IsAuthenticated] # Only logged-in users can access this.
 
     def get_object(self):
         """
-        Returns the profile object for the currently authenticated user.
+        Overrides the default get_object method to return the profile
+        of the currently authenticated user.
         """
-        return self.get_queryset().get()
+        return self.request.user.profile
 
-    def perform_create(self, serializer):
-        """
-        Links the new profile to the currently authenticated user.
-        """
-        serializer.save(user=self.request.user)
-    
+# --- Calorie Goal Suggestion View ---
+# This view provides personalized calorie intake suggestions.
+
 class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
     """
     An endpoint to provide personalized daily calorie intake suggestions
     based on a user's profile and fitness goals.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request):
         """
@@ -102,5 +81,3 @@ class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
         except Exception as e:
             # Handle other potential errors
             return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-

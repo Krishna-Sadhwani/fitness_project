@@ -21,7 +21,7 @@ const Profile = () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await apiClient.get('/auth/profile/')
+      const res = await apiClient.get('auth/profile/')
       // Endpoint returns a single profile for current user, but router list may return array
       const data = Array.isArray(res.data) ? res.data[0] : res.data
       setProfile({

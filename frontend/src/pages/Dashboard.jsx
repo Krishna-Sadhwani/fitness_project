@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import apiClient from '../api/client'
+import { Link } from 'react-router-dom'
 
 const formatDate = (d) => {
   const pad = (n) => String(n).padStart(2, '0')
@@ -266,6 +267,20 @@ const Dashboard = () => {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* AI Nutritionist Section - Bottom Left */}
+          <div className="flex justify-end">
+            <Link
+              to="/chatbot"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:brightness-105 transition"
+            >
+              <span className="text-2xl">🤖</span>
+              <div>
+                <div className="font-semibold">AI Nutritionist</div>
+                <div className="text-sm opacity-90">Get personalized advice</div>
+              </div>
+            </Link>
           </div>
         </>
       )}

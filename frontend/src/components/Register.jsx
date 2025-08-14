@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import apiClient from "../api/client"; // Import apiClient
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -9,13 +10,13 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleRegistration = async (e) => {
     e.preventDefault();
     setErrors({});
     setSuccess(false);
 
-    // Client-side validation
     if (password !== confirmPassword) {
       setErrors({ confirmPassword: "Passwords do not match" });
       return;
@@ -25,31 +26,44 @@ export default function Register() {
 
     try {
       setLoading(true);
-      // Uncomment and set correct API endpoint
-      const response = await axios.post("http://127.0.0.1:8000/api/register/", userData);
-       console.log(response.data);
-
-      console.log("Registration successful");
+      // Use apiClient for the request
+      const response = await apiClient.post("/register/", userData);
+      console.log("Registration successful", response.data);
       setSuccess(true);
-      setUsername("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      // Clear form and redirect to login after a short delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err) {
-      console.error(err);
-      setErrors(err.response?.data || { general: "Registration failed" });
+      const apiErrors = err.response?.data || {};
+      setErrors(apiErrors);
+      console.error("Registration failed", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-center mb-2 text-gray-800">Create an Account</h3>
-        <p className="text-center text-gray-500 text-sm mb-6">Join Fitkeep and start tracking today.</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleRegistration}>
+          {success && (
+            <div className="rounded-md bg-green-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-green-800">
+                    Registration successful! Redirecting to login...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
-        <form onSubmit={handleRegistration} className="space-y-4">
           {/* Username */}
           <div>
             <input
@@ -121,15 +135,19 @@ export default function Register() {
           )}
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 rounded-lg font-semibold text-white ${
-              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105'
-            }`}
-          >
-            {loading ? "Please wait..." : "Register"}
-          </button>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                loading
+                  ? "bg-gray-400"
+                  : "bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+            >
+              {loading ? "Creating account..." : "Sign up"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

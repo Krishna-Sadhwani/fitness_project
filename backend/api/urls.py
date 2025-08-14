@@ -18,4 +18,5 @@ path("",include('chatbot.urls')),  # Include the chatbot app URLs
     path('', include('meals.urls')), # Include the new meals app URLs
     path('', include('workouts.urls')),  # Include the workouts app URLs
 path("blog/",include('blog.urls')),  # Include the blog app URLs
+path('',include('daily_data.urls')),  # Include the daily_data app URLs
 ]

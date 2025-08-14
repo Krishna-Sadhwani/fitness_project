@@ -3,10 +3,13 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from PIL import Image
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+
     # User's personal information
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
@@ -43,3 +46,16 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile'
+    def save(self, *args, **kwargs):
+        # Call the original save method first
+        super().save(*args, **kwargs)
+
+        # Open the image file if it exists
+        if self.profile_picture:
+            img = Image.open(self.profile_picture.path)
+
+            # Resize the image if it's larger than 300x300 pixels
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.profile_picture.path)

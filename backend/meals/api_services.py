@@ -5,17 +5,25 @@ from .models import FoodItem
 # Base URLs for the APIs
 NUTRITIONIX_BASE_URL = "https://trackapi.nutritionix.com/v2/natural/nutrients"
 OPEN_FOOD_FACTS_BASE_URL = "https://world.openfoodfacts.org/cgi/search.pl"
-
 def search_and_save_food(query):
     """
-    Searches for a food item and saves it to the database,
-    using Nutritionix as the primary API and Open Food Facts as a fallback.
-    Returns the saved FoodItem instance.
+    Searches for a food item, checking our own database first before
+    calling external APIs.
     """
+    # --- NEW: Check our database first ---
+    try:
+        # We use 'iexact' for a case-insensitive search
+        food_item = FoodItem.objects.get(name__iexact=query)
+        # If found, return it immediately. 'created' is False.
+        return food_item, False
+    except FoodItem.DoesNotExist:
+        # If not in our database, proceed to call the APIs
+        pass
+
     # 1. Try to get data from Nutritionix
     nutritionix_data = _search_nutritionix(query)
     if nutritionix_data:
-        # Check if the food already exists in our database
+        # Use get_or_create to save the new item
         food_item, created = FoodItem.objects.get_or_create(
             name=nutritionix_data['name'],
             defaults=nutritionix_data

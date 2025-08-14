@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions
-from .models import DailySteps, WaterIntake, Sleep
+from .models import DailySteps, WaterIntake, Sleep,WeightLog
 from .serializers import DailyStepsSerializer, WaterIntakeSerializer, SleepSerializer,WeightLogSerializer
 class DailyDataViewSet(viewsets.ModelViewSet):
     """

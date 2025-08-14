@@ -19,7 +19,7 @@ export default function LandingPage() {
               <a href="/dashboard" className="px-6 py-3 rounded font-semibold text-black bg-white hover:brightness-105 transition text-center">
                 Start Tracking
               </a>
-              <a href="#features" className="px-6 py-3 rounded font-semibold text-light bg-red text-center">
+              <a href="#features" className="px-6 py-3 rounded font-semibold text-black bg-red-500 text-center">
                 Explore features
               </a>
             </div>
@@ -30,7 +30,7 @@ export default function LandingPage() {
               <span>AI nutritionist</span>
             </div>
           </div>
-          <img src="/vite.svg" alt="App preview" className="w-full max-w-md justify-self-center opacity-90" />
+          {/* <img src="" alt="App preview" className="w-full max-w-md justify-self-center opacity-90" /> */}
         </div>
       </section>
 
@@ -118,7 +118,7 @@ export default function LandingPage() {
       <section className="w-full py-16 px-6 md:px-16 bg-gradient-to-br from-brand to-brandDark text-white text-center">
         <h2 className="text-3xl font-bold mb-4">Ready to start?</h2>
         <p className="mb-6 text-lg">Join others building sustainable habits with Fitkeep.</p>
-        <a href="/register" className="px-8 py-3 rounded font-bold text-black bg-white transition">Get started</a>
+        <a href="/register" className="px-8 py-3 rounded font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105 transition">Get started</a>
       </section>
 
       {/* Footer */}

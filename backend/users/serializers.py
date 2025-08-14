@@ -44,7 +44,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'height', 'weight','age','gender', 'weight_goal', 'calorie_goal_option','recommended_calories','daily_calorie_intake'] #'profile_picture']
+        fields = ['id', 'user', 'height', 'weight','age','gender', 'weight_goal', 'calorie_goal_option','recommended_calories','daily_calorie_intake', 'profile_picture']
 
     def validate(self, data):
         """

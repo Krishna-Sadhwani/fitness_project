@@ -1,3 +1,4 @@
+
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -76,6 +77,16 @@ class FoodSearchAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # --- THIS IS THE ONLY VALIDATION YOU NEED ---
+        # It checks if the query, after removing spaces, contains only letters.
+        if not query.replace(' ', '').isalpha():
+            return Response(
+                {"error": "Please enter a valid food name using only letters."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ... (rest of your view logic) ...
+            
         # Use the service module to search the APIs and save to the database.
         food_item, created = search_and_save_food(query)
 
