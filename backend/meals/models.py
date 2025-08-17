@@ -58,9 +58,16 @@ def update_meal_calories(sender, instance, **kwargs):
     """
     meal = instance.meal
     
-    total_calories = MealItem.objects.filter(meal=meal).aggregate(
-        total=Sum(F('food_item__calories') / 100 * F('quantity_g'), output_field=DecimalField())
-    )['total'] or Decimal('0.0')
-    
+    aggregation_result = MealItem.objects.filter(meal=meal).aggregate(
+        total=Sum(
+            (F('food_item__calories') * F('quantity_g')) / Decimal('100.0'), 
+            output_field=DecimalField()
+        )
+    )
+
+    # Take the number out of the dictionary, defaulting to 0 if it's empty
+    total_calories = aggregation_result['total'] or Decimal('0.0')
+
     meal.total_calories = total_calories
+    print(f"Updated total calories for {meal}: {meal.total_calories}")
     meal.save(update_fields=['total_calories'])

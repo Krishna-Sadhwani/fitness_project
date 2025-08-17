@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
-from .models import DailySteps, WaterIntake, Sleep,WeightLog
-from .serializers import DailyStepsSerializer, WaterIntakeSerializer, SleepSerializer,WeightLogSerializer
+from .models import DailySteps, WaterIntake, Sleep,WeightLog, UserGoals
+from .serializers import DailyStepsSerializer, WaterIntakeSerializer, SleepSerializer,WeightLogSerializer, UserGoalsSerializer
+from rest_framework import generics
 class DailyDataViewSet(viewsets.ModelViewSet):
     """
     A base ViewSet for handling daily data entries.
@@ -31,3 +32,14 @@ class SleepViewSet(DailyDataViewSet):
 class WeightLogViewSet(DailyDataViewSet):
     queryset = WeightLog.objects.all()
     serializer_class = WeightLogSerializer
+class UserGoalsView(generics.RetrieveUpdateAPIView):
+    """
+    An endpoint for the logged-in user to view and update their daily goals.
+    """
+    queryset = UserGoals.objects.all()
+    serializer_class = UserGoalsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        goals, created = UserGoals.objects.get_or_create(user=self.request.user)
+        return goals

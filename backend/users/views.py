@@ -2,7 +2,7 @@ from rest_framework import generics, viewsets, status, permissions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Profile
-from .serializers import UserRegistrationSerializer, ProfileSerializer, CalorieGoalResponseSerializer
+from .serializers import UserRegistrationSerializer, ProfileSerializer, CalorieGoalResponseSerializer,UserAccountSerializer
 from .utils import calculate_calorie_suggestions
 
 # --- User Registration View ---
@@ -32,7 +32,19 @@ class UserRegistrationView(generics.CreateAPIView):
 # --- User Profile View (Updated) ---
 # This view is for fetching (GET) and updating (PATCH/PUT) the logged-in user's profile.
 # It replaces the previous ProfileViewSet for simplicity and security.
+class UserAccountView(generics.RetrieveUpdateAPIView):
+    """
+    An endpoint for the logged-in user to view and update their account details (username/email).
+    """
+    queryset = User.objects.all()
+    serializer_class = UserAccountSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self):
+        """
+        This view should return the User object of the currently authenticated user.
+        """
+        return self.request.user
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """
     An endpoint for the logged-in user to view and update their own profile.

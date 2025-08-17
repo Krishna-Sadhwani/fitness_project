@@ -8,6 +8,18 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+class UserGoals(models.Model):
+    """
+    Stores the daily goals for a user. Each user will have one set of goals.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='goals')
+    
+    step_goal = models.PositiveIntegerField(default=8000)
+    water_goal_ml = models.PositiveIntegerField(default=2000)
+    sleep_goal_hours = models.DecimalField(max_digits=4, decimal_places=2, default=8.0)
+
+    def __str__(self):
+        return f"{self.user.username}'s Daily Goals"
 class WeightLog(models.Model):
     """Stores a user's weight on a specific date to track progress."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_logs')

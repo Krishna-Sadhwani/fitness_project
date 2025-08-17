@@ -1,102 +1,97 @@
-import axios from 'axios'
+import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api'
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-// Create a single axios instance for the app
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-})
+});
 
-// Helper to get and set tokens in localStorage
+// This function correctly reads the separate tokens.
 const getTokens = () => {
   try {
-    const access = localStorage.getItem('accessToken')
-    const refresh = localStorage.getItem('refreshToken')
-    return { access, refresh }
+    const access = localStorage.getItem('accessToken');
+    const refresh = localStorage.getItem('refreshToken');
+    return { access, refresh };
   } catch {
-    return { access: null, refresh: null }
+    return { access: null, refresh: null };
   }
-}
+};
 
+// --- CHANGE: This function now correctly saves the new accessToken ---
 const setAccessToken = (token) => {
-  if (token) localStorage.setItem('accessToken', token)
-}
-
-// Attach Authorization header if we have an access token
-apiClient.interceptors.request.use((config) => {
-  const { access } = getTokens()
-  if (access) {
-    config.headers = config.headers || {}
-    config.headers.Authorization = `Bearer ${access}`
+  if (token) {
+    localStorage.setItem('accessToken', token);
+  } else {
+    localStorage.removeItem('accessToken');
   }
-  return config
-})
+};
 
-// On 401, try refreshing the token once and retry the original request
-let isRefreshing = false
-let pendingRequests = []
+// This interceptor correctly attaches the token to every request.
+apiClient.interceptors.request.use((config) => {
+  const { access } = getTokens();
+  if (access) {
+    config.headers.Authorization = `Bearer ${access}`;
+  }
+  return config;
+});
+
+// This response interceptor handles token refreshing.
+let isRefreshing = false;
+let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  pendingRequests.forEach((prom) => {
+  failedQueue.forEach(prom => {
     if (error) {
-      prom.reject(error)
+      prom.reject(error);
     } else {
-      prom.resolve(token)
+      prom.resolve(token);
     }
-  })
-  pendingRequests = []
-}
+  });
+  failedQueue = [];
+};
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config
-    const status = error?.response?.status
-
-    if (status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          pendingRequests.push({
-            resolve: (token) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`
-              resolve(apiClient(originalRequest))
-            },
-            reject,
-          })
-        })
+        return new Promise(function(resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers['Authorization'] = 'Bearer ' + token;
+          return apiClient(originalRequest);
+        });
       }
 
-      isRefreshing = true
-      const { refresh } = getTokens()
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const { refresh } = getTokens();
       if (!refresh) {
-        isRefreshing = false
-        processQueue(new Error('No refresh token'))
-        return Promise.reject(error)
+        // If there's no refresh token, we can't do anything.
+        return Promise.reject(error);
       }
 
       try {
-        const refreshResponse = await axios.post(`${API_BASE_URL}/token/refresh/`, {
-          refresh,
-        })
-        const newAccess = refreshResponse.data.access
-        setAccessToken(newAccess)
-        processQueue(null, newAccess)
-        originalRequest.headers.Authorization = `Bearer ${newAccess}`
-        return apiClient(originalRequest)
-      } catch (refreshErr) {
-        processQueue(refreshErr, null)
-        return Promise.reject(refreshErr)
+        const res = await axios.post(`${API_BASE_URL}/token/refresh/`, { refresh });
+        const newAccessToken = res.data.access;
+        setAccessToken(newAccessToken);
+        apiClient.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        processQueue(null, newAccessToken);
+        return apiClient(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        // If refresh fails, we should log the user out.
+        // You can add a call to your logout function here if you pass it in.
+        return Promise.reject(err);
       } finally {
-        isRefreshing = false
+        isRefreshing = false;
       }
     }
-
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default apiClient
-
-
+export default apiClient;

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import WorkoutViewSet,DailyWorkoutSummaryViewSet
+from .views import WorkoutViewSet,DailyWorkoutSummaryViewSet,WorkoutCalculationView
 
 # Create a router and register our viewset with it.
 router = DefaultRouter()
@@ -10,5 +10,7 @@ router.register(r'summary', DailyWorkoutSummaryViewSet, basename='workout-summar
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
+    path('workouts/calculate/', WorkoutCalculationView.as_view(), name='workout-calculate'),
+
     path('', include(router.urls)),
 ]

@@ -34,12 +34,70 @@ class MealItemSerializer(serializers.ModelSerializer):
     def get_fats(self, obj):
         return round(obj.food_item.fats * (obj.quantity_g / 100), 2)
 
+# class MealSerializer(serializers.ModelSerializer):
+#     meal_items = MealItemSerializer(many=True)
+#     total_calories = serializers.SerializerMethodField()
+#     total_protein = serializers.SerializerMethodField()
+#     total_carbs = serializers.SerializerMethodField()
+#     total_fats = serializers.SerializerMethodField()
+    
+#     class Meta:
+#         model = Meal
+#         fields = ['id', 'user', 'meal_type', 'date', 'meal_items',
+#                   'total_calories', 'total_protein', 'total_carbs', 'total_fats']
+#         read_only_fields = ['user']
+
+#     # The key change: calculate the sum using the related model fields
+#     def get_total_calories(self, obj):
+#         return sum(item.food_item.calories * (item.quantity_g / 100) for item in obj.meal_items.all())
+
+#     def get_total_protein(self, obj):
+#         return sum(item.food_item.protein * (item.quantity_g / 100) for item in obj.meal_items.all())
+
+#     def get_total_carbs(self, obj):
+#         return sum(item.food_item.carbs * (item.quantity_g / 100) for item in obj.meal_items.all())
+
+#     def get_total_fats(self, obj):
+#         return sum(item.food_item.fats * (item.quantity_g / 100) for item in obj.meal_items.all())
+
+#     def create(self, validated_data):
+#         meal_items_data = validated_data.pop('meal_items')
+#         meal = Meal.objects.create(**validated_data)
+        
+#         for item_data in meal_items_data:
+#             MealItem.objects.create(meal=meal, **item_data)
+        
+#         return meal
+#     def update(self, instance, validated_data):
+#         """
+#         Custom update logic to handle the nested meal_items.
+#         """
+#         # Pop the nested data to handle it separately
+#         meal_items_data = validated_data.pop('meal_items')
+        
+#         # Update the simple fields on the Meal instance (like date or meal_type)
+#         instance.meal_type = validated_data.get('meal_type', instance.meal_type)
+#         instance.date = validated_data.get('date', instance.date)
+#         instance.save()
+
+#         # Delete the old meal items associated with this meal
+#         instance.meal_items.all().delete()
+
+#         # Create new meal items from the provided data
+#         for item_data in meal_items_data:
+#             MealItem.objects.create(meal=instance, **item_data)
+            
+#         return instance
+
 class MealSerializer(serializers.ModelSerializer):
     meal_items = MealItemSerializer(many=True)
-    total_calories = serializers.SerializerMethodField()
-    total_protein = serializers.SerializerMethodField()
-    total_carbs = serializers.SerializerMethodField()
-    total_fats = serializers.SerializerMethodField()
+    # --- CHANGE: These fields will now read directly from the model ---
+    # This assumes your Meal model has fields for total_calories, total_protein, etc.,
+    # and that your signal is updated to calculate all of them.
+    total_calories = serializers.ReadOnlyField()
+    total_protein = serializers.ReadOnlyField()
+    total_carbs = serializers.ReadOnlyField()
+    total_fats = serializers.ReadOnlyField()
     
     class Meta:
         model = Meal
@@ -47,18 +105,8 @@ class MealSerializer(serializers.ModelSerializer):
                   'total_calories', 'total_protein', 'total_carbs', 'total_fats']
         read_only_fields = ['user']
 
-    # The key change: calculate the sum using the related model fields
-    def get_total_calories(self, obj):
-        return sum(item.food_item.calories * (item.quantity_g / 100) for item in obj.meal_items.all())
-
-    def get_total_protein(self, obj):
-        return sum(item.food_item.protein * (item.quantity_g / 100) for item in obj.meal_items.all())
-
-    def get_total_carbs(self, obj):
-        return sum(item.food_item.carbs * (item.quantity_g / 100) for item in obj.meal_items.all())
-
-    def get_total_fats(self, obj):
-        return sum(item.food_item.fats * (item.quantity_g / 100) for item in obj.meal_items.all())
+    # --- CHANGE: Removed all get_total_* methods ---
+    # The calculation is now handled by your Django signal, making the model the single source of truth.
 
     def create(self, validated_data):
         meal_items_data = validated_data.pop('meal_items')
@@ -68,6 +116,23 @@ class MealSerializer(serializers.ModelSerializer):
             MealItem.objects.create(meal=meal, **item_data)
         
         return meal
+
+    def update(self, instance, validated_data):
+        """
+        Custom update logic to handle the nested meal_items.
+        """
+        meal_items_data = validated_data.pop('meal_items')
+        
+        instance.meal_type = validated_data.get('meal_type', instance.meal_type)
+        instance.date = validated_data.get('date', instance.date)
+        instance.save()
+
+        instance.meal_items.all().delete()
+
+        for item_data in meal_items_data:
+            MealItem.objects.create(meal=instance, **item_data)
+            
+        return instance
 class DailyCalorieSerializer(serializers.Serializer):
     """
     Serializer to display a user's daily calorie intake, goal, and status.

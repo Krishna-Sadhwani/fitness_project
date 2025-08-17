@@ -4,11 +4,52 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum
 from django.utils import timezone
 from decimal import Decimal
-
+from rest_framework.views import APIView
 from .models import Workout
 from .serializers import WorkoutSerializer,DailyWorkoutSummarySerializer
 from .api_services import get_workout_calories
 from users.models import Profile # Import the Profile model
+# --- NEW VIEW ADDED ---
+class WorkoutCalculationView(APIView):
+    """
+    An endpoint to calculate calories for a workout description without saving it.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        description = request.data.get('description')
+        if not description:
+            return Response({"error": "Please provide a description."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+        try:
+            profile = user.profile
+            if not all([profile.weight, profile.height, profile.age, profile.gender]):
+                raise Profile.DoesNotExist
+        except Profile.DoesNotExist:
+            return Response(
+                {"error": "User profile is incomplete. Please provide weight, height, age, and gender."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            calories = get_workout_calories(
+                description=description,
+                weight=profile.weight,
+                height=profile.height,
+                age=profile.age,
+                gender=profile.gender
+            )
+            # If the API returns no data, send a clear message
+            if calories is None:
+                 return Response({"error": "No workouts found for this search."}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                'description': description,
+                'calories_burned': calories
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class WorkoutViewSet(viewsets.ModelViewSet):
     """
@@ -18,8 +59,22 @@ class WorkoutViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Ensures users can only see their own workouts."""
-        return Workout.objects.filter(user=self.request.user)
+        """
+        Ensures users can only see their own workouts and filters by date.
+        """
+        user = self.request.user
+        queryset = Workout.objects.filter(user=user)
+
+        # --- THIS IS THE FIX ---
+        # Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
+        date_filter = self.request.query_params.get('date', None)
+        
+        # If a date is provided, filter the queryset
+        if date_filter:
+            queryset = queryset.filter(date=date_filter)
+            
+        return queryset
+
 
     def perform_create(self, serializer):
         """

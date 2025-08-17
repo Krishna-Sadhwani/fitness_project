@@ -1,6 +1,7 @@
 from django.urls import path, include
 from users import views as UserViews
 from chatbot.views import ChatAPIView
+from users.views import UserProfileView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -19,4 +20,33 @@ path("",include('chatbot.urls')),  # Include the chatbot app URLs
     path('', include('workouts.urls')),  # Include the workouts app URLs
 path("blog/",include('blog.urls')),  # Include the blog app URLs
 path('',include('daily_data.urls')),  # Include the daily_data app URLs
+path('profile/', UserProfileView.as_view(), name='user-profile'),
+
+]
+# In api/urls.py
+
+from django.urls import path, include
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+urlpatterns = [
+    # --- Authentication ---
+    # All user-related URLs are neatly grouped under the /auth/ path.
+    path('auth/', include('users.urls')),
+    
+    # Standard JWT token URLs
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # --- App Features ---
+    # Each app is given its own unique namespace to prevent conflicts.
+    path('meals/', include('meals.urls')),
+    path('workouts/', include('workouts.urls')),
+    path('blog/', include('blog.urls')),
+    path('daily-data/', include('daily_data.urls')),
+    path('chatbot/', include('chatbot.urls')),
+    path('analysis/', include('analysis.urls')),
+
 ]

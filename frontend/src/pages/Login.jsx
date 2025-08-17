@@ -1,62 +1,52 @@
-import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const Login = () => {
-  const { login, loading } = useAuth()
-  const navigate = useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
+export default function Login() {
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { loginUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
-    const res = await login({ username, password })
-    if (!res.success) setError(res.error)
-    else navigate('/profile', { replace: true })
-  }
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await loginUser(formData.username, formData.password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow p-6">
-        <h1 className="text-2xl font-bold mb-2 text-gray-800">Welcome back</h1>
-        <p className="text-gray-500 mb-6 text-sm">Sign in to continue tracking your progress.</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center">Welcome Back!</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && (
-            <div className="text-red-600 text-sm bg-red-50 border border-red-100 rounded p-2">
-              {typeof error === 'string' ? error : 'Please enter valid details'}
-            </div>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 rounded-lg font-semibold text-white ${
-              loading ? 'bg-gray-400' : 'bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105'
-            }`}
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
+          <div>
+            <label>Username</label>
+            <input type="text" name="username" onChange={handleChange} className="w-full p-2 border rounded" required />
+          </div>
+          <div>
+            <label>Password</label>
+            <input type="password" name="password" onChange={handleChange} className="w-full p-2 border rounded" required />
+          </div>
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          <button type="submit" disabled={loading} className="w-full py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-400">
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        <p className="text-sm text-center">Don't have an account? <Link to="/register" className="text-blue-600">Register</Link></p>
       </div>
     </div>
-  )
+  );
 }
-
-export default Login
 
 

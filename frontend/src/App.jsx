@@ -1,63 +1,77 @@
-import { useState } from 'react'
-import './App.css'
-import { Routes, Route ,useLocation} from 'react-router-dom'
-// ... (other imports)
-import Layout from './components/Layout' // Make sure this is imported
-import Header from './components/ui/Header'; // Adjust the path if needed
-import LandingPage from './pages/LandingPage'
-import Register from './components/Register'
-import Login from './pages/Login'
-import ProtectedRoute from './components/ProtectedRoute'
-import Dashboard from './pages/Dashboard'
-import Footer from './components/ui/Footer'
-import Profile from './pages/Profile'
-// import { Routes, Route, useLocation } from 'react-router-dom';
-import Meals from './pages/Meals'; // Assuming you have a Meals page  
+import React, { useState } from 'react';
+import { Routes, Route, Outlet } from 'react-router-dom';
+
+// Layout Components
+import Header from './components/ui/Header';
+import Footer from './components/ui/Footer';
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Pages
+import LandingPage from './pages/LandingPage';
+import Register from './components/Register';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import LogMeal from './pages/Meals';
+import LogWorkout from './pages/Workouts';
+import Blogs from './pages/Blogs';
+import Chatbot from './pages/Chatbot';
+import Analysis from './pages/Analysis';
+import './App.css';
+import Meals from './pages/Meals';
+
+// --- NEW: A dedicated layout for public-facing pages ---
+// This ensures the landing page header is completely separate from the app's header.
+const PublicLayout = () => (
+  <>
+    {/* This Header will be the logged-out version */}
+    <Header />
+    <main>
+      <Outlet />
+    </main>
+    <Footer />
+  </>
+);
+
 function App() {
+  // The state for the sidebar is managed here, in the main App component.
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
-
-  // Determine if the current page is a dashboard page
-  const isDashboardPage = location.pathname.startsWith('/dashboard') || 
-                          location.pathname.startsWith('/profile') ||
-                          // Add other protected paths here
-                          location.pathname.startsWith('/meals');
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
   return (
-    <>
-      {/* --- CONDITIONAL RENDERING --- */}
-      {/* Only show the main Header on non-dashboard pages */}
-      {!isDashboardPage && <Header />}
-
-      <Routes>
-        {/* Public Routes */}
+    <Routes>
+      {/* --- Public Routes --- */}
+      {/* These routes use the simple PublicLayout. */}
+      <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        
-        {/* Protected Routes */}
-        <Route 
-          element={
-            <ProtectedRoute>
-              {/* Pass state and toggle function to the Layout */}
-              <Layout isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/meals" element={<Meals />} />
-          {/* ... other protected routes */}
-        </Route>
-      </Routes>
+      </Route>
 
-      {/* Only show the main Footer on non-dashboard pages */}
-      {!isDashboardPage && <Footer />}
-    </>
+      {/* --- Auth Routes --- */}
+      {/* These routes are standalone and don't use a shared layout. */}
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+
+      {/* --- Protected App Routes --- */}
+      {/* All protected routes are nested inside the main Layout, which contains the sidebar and the dynamic header. */}
+      <Route 
+        element={
+          <ProtectedRoute>
+            {/* The state and toggle function are passed down to the main Layout. */}
+            <Layout isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/log-meal" element={<Meals />} />
+        <Route path="/log-workout" element={<LogWorkout />} />
+        <Route path="/blogs" element={<Blogs />} />
+         <Route path="/analysis" element={<Analysis />} />
+
+        <Route path="/ai-nutritionist" element={<Chatbot />} />
+      </Route>
+    </Routes>
   );
 }
 

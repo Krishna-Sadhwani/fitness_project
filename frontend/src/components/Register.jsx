@@ -1,154 +1,116 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import apiClient from "../api/client"; // Import apiClient
+import { Link, useNavigate } from "react-router-dom";
+import apiClient from "../api/client";
 
 export default function Register() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    password2: "",
+  });
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  const handleRegistration = async (e) => {
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setErrors({});
-    setSuccess(false);
-
-    if (password !== confirmPassword) {
-      setErrors({ confirmPassword: "Passwords do not match" });
+    if (formData.password !== formData.password2) {
+      setErrors({ password2: "Passwords do not match." });
+      setLoading(false);
       return;
     }
-
-    const userData = { username, email, password, password2: confirmPassword };
-
     try {
-      setLoading(true);
-      // Use apiClient for the request
-      const response = await apiClient.post("/register/", userData);
-      console.log("Registration successful", response.data);
-      setSuccess(true);
-      // Clear form and redirect to login after a short delay
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      await apiClient.post("auth/register/", formData);
+      navigate("/login");
     } catch (err) {
-      const apiErrors = err.response?.data || {};
-      setErrors(apiErrors);
-      console.error("Registration failed", err);
+      setErrors(err.response?.data || { detail: "Registration failed." });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleRegistration}>
-          {success && (
-            <div className="rounded-md bg-green-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">
-                    Registration successful! Redirecting to login...
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Username */}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center">Create Your Account</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form fields for username, email, password, confirm password */}
+          {/* Example for one field: */}
           <div>
+            <label>Username</label>
             <input
               type="text"
-              placeholder="Enter Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
+              name="username"
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
             />
             {errors.username && (
-              <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.username}</p>
             )}
           </div>
-
-          {/* Email */}
           <div>
+            <label>Email</label>
             <input
               type="email"
-              placeholder="Enter Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
+              name="email"
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )}
           </div>
-
-          {/* Password */}
           <div>
+            <label>Password</label>
             <input
               type="password"
-              placeholder="Enter Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
+              name="password"
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
             />
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
           </div>
-
-          {/* Confirm Password */}
           <div>
+            <label>Confirm Password</label>
             <input
               type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
+              name="password2"
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
             />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.confirmPassword}
-              </p>
+            {errors.password2 && (
+              <p className="text-red-500 text-xs mt-1">{errors.password2}</p>
             )}
           </div>
-
-          {/* General Errors */}
-          {errors.general && (
-            <p className="text-red-600 text-sm mt-2 text-center bg-red-50 border border-red-100 rounded p-2">{errors.general}</p>
+          {errors.detail && (
+            <p className="text-red-500 text-center">{errors.detail}</p>
           )}
-
-          {/* Success Message */}
-          {success && (
-            <p className="text-green-600 text-sm mt-2 text-center">
-              Registration successful!
-            </p>
-          )}
-
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                loading
-                  ? "bg-gray-400"
-                  : "bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-            >
-              {loading ? "Creating account..." : "Sign up"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
+        <p className="text-sm text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

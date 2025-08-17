@@ -5,9 +5,11 @@ from django.contrib.auth.models import User
 # --- Serializer for displaying author information ---
 class AuthorSerializer(serializers.ModelSerializer):
     """A simple serializer to display a user's username."""
+    profile_picture = serializers.ImageField(source='profile.profile_picture', read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['id', 'username','profile_picture']
 
 # --- Serializer for Comments ---
 class CommentSerializer(serializers.ModelSerializer):

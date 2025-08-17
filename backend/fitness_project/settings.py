@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'meals',
     'chatbot',
     'workouts',
+    'analysis',
     'rest_framework',
     'rest_framework_simplejwt', 
 'blog',

@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import DailySteps, WaterIntake, Sleep,WeightLog
+from .models import DailySteps, WaterIntake, Sleep,WeightLog,UserGoals
+class UserGoalsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGoals
+        fields = ['step_goal', 'water_goal_ml', 'sleep_goal_hours']
+
 
 class DailyStepsSerializer(serializers.ModelSerializer):
     class Meta:
