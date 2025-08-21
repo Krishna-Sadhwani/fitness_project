@@ -29,7 +29,7 @@ export default function DashboardPreviewSection() {
                     transition={{ duration: 0.5 }}
                 >
                     <img 
-                        src="/dashboard-preview.png" 
+                        src="/dashboard-preview.jpeg" 
                         alt="Dashboard Preview" 
                         className="rounded-2xl shadow-2xl border-4 border-white"
                     />

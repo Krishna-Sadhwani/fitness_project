@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../api/client';
 import { Toaster, toast } from 'sonner';
 import { Info, Utensils, Dumbbell } from 'lucide-react';
+import DailyTip from '../components/dashboard/DailyTip';
 
 // Import the dashboard components
 import CalorieTracker from '../components/dashboard/CalorieTracker';
@@ -18,6 +19,8 @@ export default function Dashboard() {
     
     const [modalOpen, setModalOpen] = useState(false);
     const [logType, setLogType] = useState(null);
+    const [tip, setTip] = useState("Click the button to generate a personalized tip for today!");
+    const [isGeneratingTip, setIsGeneratingTip] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -66,6 +69,17 @@ export default function Dashboard() {
     useEffect(() => {
         fetchData();
     }, []);
+     const generateNewTip = async () => {
+        setIsGeneratingTip(true);
+        try {
+            const response = await apiClient.get('/analysis/daily-tip/');
+            setTip(response.data.tip);
+        } catch (error) {
+            toast.error('Could not generate a new tip at this time.');
+        } finally {
+            setIsGeneratingTip(false);
+        }
+    };
 
     const openLogModal = (type) => {
         setLogType(type);
@@ -99,21 +113,33 @@ export default function Dashboard() {
         <>
             <Toaster position="top-center" richColors duration={3000}/>
             <div className="p-4 md:p-8 space-y-8">
-                <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-800">Today's Dashboard</h1>
-                        <p className="text-gray-500">A summary of your activity for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.</p>
+                 {/* --- THIS IS THE FIX --- */}
+                {/* A new container for the top section of the dashboard */}
+                <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+                    {/* Left Column: Title and Tip */}
+                    <div className="space-y-4 flex-1">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-800">Today's Dashboard</h1>
+                            <p className="text-gray-500">A summary of your activity for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.</p>
+                        </div>
+                        <DailyTip 
+                            tip={tip} 
+                            onGenerate={generateNewTip} 
+                            isLoading={isGeneratingTip} 
+                        />
                     </div>
-                    <div className="flex gap-2">
-                        <Link to="/log-meal" className="flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors shadow-sm">
+                    {/* Right Column: Action Buttons */}
+                    <div className="flex gap-2 w-full md:w-auto">
+                        <Link to="/log-meal" className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-green-600 transition-colors shadow-sm">
                             <Utensils size={16} />
                             <span>Log Meal</span>
                         </Link>
-                        <Link to="/log-workout" className="flex items-center justify-center gap-2 bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
+                        <Link to="/log-workout" className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white font-semibold py-2 px-3 rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
                             <Dumbbell size={16} />
                             <span>Log Workout</span>
                         </Link>
                     </div>
+                
                 </div>
                 
                 {stats && (
