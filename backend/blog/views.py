@@ -28,12 +28,23 @@ class BlogPostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        This view should return a list of all published posts for anonymous users,
-        but also include drafts for the authenticated user who owns them.
+        This view now correctly sorts all queries by the creation date,
+        ensuring the newest posts appear first.
         """
-        if self.request.user.is_authenticated:
-            return BlogPost.objects.filter(status='published') | BlogPost.objects.filter(author=self.request.user, status='draft')
-        return BlogPost.objects.filter(status='published')
+        user = self.request.user
+        my_posts_filter = self.request.query_params.get('my_posts', 'false').lower() == 'true'
+
+        if user.is_authenticated:
+            if my_posts_filter:
+                # --- FIX: Added ordering ---
+                return BlogPost.objects.filter(author=user).order_by('-created_at')
+            
+            # --- FIX: Added ordering ---
+            return (BlogPost.objects.filter(status='published') | BlogPost.objects.filter(author=user, status='draft')).distinct().order_by('-created_at')
+        
+        # --- FIX: Added ordering ---
+        return BlogPost.objects.filter(status='published').order_by('-created_at')
+
 
     def perform_create(self, serializer):
         """Automatically set the author of the post to the logged-in user."""

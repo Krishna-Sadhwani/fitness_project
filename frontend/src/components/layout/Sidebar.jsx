@@ -42,8 +42,8 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         onClick={toggleSidebar}
       ></div>
 
-<aside className={`fixed top-20 left-0 h-[calc(100vh-4rem)] bg-white border-r z-40 w-64 transform transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>     <div className="p-4 border-b h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold">FitKeep</h1>
+<aside className={`fixed top-10 left-0 h-[calc(100vh-4rem)] bg-white border-r z-40 w-64 transform transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>     <div className="p-4 border-b h-16 flex items-center justify-between">
+          {/* <h1 className="text-xl font-bold">FitKeep</h1> */}
           {/* --- 2. CLOSE BUTTON ADDED --- */}
           {/* This button is only visible on mobile screens */}
           <button onClick={toggleSidebar} className="md:hidden text-gray-600 p-1 rounded-full hover:bg-gray-100">

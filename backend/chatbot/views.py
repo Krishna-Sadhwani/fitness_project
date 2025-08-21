@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated # <-- Import IsAuthentica
 from groq import Groq
 from django.conf import settings
 from .models import Conversation
-from .serializers import ChatMessageSerializer
+from .serializers import ChatMessageSerializer,ConversationSerializer
 from users.models import Profile
 
 # Initialize the Groq client
@@ -21,6 +21,14 @@ class ChatAPIView(APIView):
     """
     # Add this line to enforce authentication
     permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieves the conversation history for the authenticated user.
+        """
+        conversations = Conversation.objects.filter(user=request.user).order_by('timestamp')
+        serializer = ConversationSerializer(conversations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def post(self, request, *args, **kwargs):
         # The serializer handles validation of the incoming JSON data

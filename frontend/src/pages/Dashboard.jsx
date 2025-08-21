@@ -26,13 +26,15 @@ export default function Dashboard() {
             const profileData = profileRes.data;
             if (profileData.height && profileData.weight && profileData.age && profileData.daily_calorie_intake) {
                 setProfileComplete(true);
+                const today = new Date().toISOString().split('T')[0];
+
                 const [meals, workouts, goals, steps, water, sleep, weight,trends] = await Promise.all([
                     apiClient.get('/meals/daily-calories/'),
                     apiClient.get('/workouts/summary/'),
                     apiClient.get('/daily-data/goals/'),
-                    apiClient.get('/daily-data/steps/').catch(() => ({ data: [{ step_count: 0 }] })),
-                    apiClient.get('/daily-data/water/').catch(() => ({ data: [{ milliliters: 0 }] })),
-                    apiClient.get('/daily-data/sleep/').catch(() => ({ data: [{ duration_hours: 0 }] })),
+                    apiClient.get(`/daily-data/steps/?date=${today}`).catch(() => ({ data: [] })),
+                    apiClient.get(`/daily-data/water/?date=${today}`).catch(() => ({ data: [] })),
+                    apiClient.get(`/daily-data/sleep/?date=${today}`).catch(() => ({ data: [] })),
                     apiClient.get('/daily-data/weight/').catch(() => ({ data: [] })),
                     apiClient.get('/analysis/weekly-trends/') // Fetch trend data
 

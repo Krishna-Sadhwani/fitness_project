@@ -287,3 +287,4 @@ export default function Meals() {
     </>
   );
 }
+

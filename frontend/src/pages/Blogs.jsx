@@ -86,7 +86,7 @@ export default function Blogs() {
             <div className="max-w-4xl mx-auto p-4 md:p-8">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">
-                        {filter === 'all' ? 'FitTrack Blog' : 'My Posts'}
+                        {filter === 'all' ? 'All Posts' : 'My Posts'}
                     </h1>
                     <div className="flex items-center gap-2">
                         {filter === 'all' ? (

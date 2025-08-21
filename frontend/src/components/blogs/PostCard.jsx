@@ -12,6 +12,11 @@ export default function PostCard({ post, onSelectPost, isAuthor, onEdit, onDelet
         e.stopPropagation();
         onDelete();
     };
+     const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
 
     return (
         <div 
@@ -45,6 +50,7 @@ export default function PostCard({ post, onSelectPost, isAuthor, onEdit, onDelet
             
             <div className="flex items-center justify-end mt-4 text-sm text-gray-500">
                 <div className="flex items-center gap-4">
+                     <p>{formattedDate}</p>
                     <span className="flex items-center gap-1.5"><ThumbsUp size={14} /> {post.like_count}</span>
                     <span className="flex items-center gap-1.5"><MessageSquare size={14} /> {post.comments.length}</span>
                 </div>

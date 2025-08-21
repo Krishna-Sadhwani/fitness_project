@@ -5,6 +5,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Profile
+from django.core.exceptions import ValidationError as DjangoValidationError
+
+from django.contrib.auth.password_validation import validate_password
 
 # --- UserRegistrationSerializer (Unchanged) ---
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -16,7 +19,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+        # --- THIS IS THE FIX ---
+        # This line runs all the built-in Django password checks.
+        # Create a temporary user instance with only the fields the User model knows about.
+        temp_user_for_validation = User(username=attrs['username'], email=attrs['email'])
+
+        try:
+            validate_password(attrs['password'], user=temp_user_for_validation)
+        except DjangoValidationError as e:
+            # We then raise a DRF ValidationError, correctly assigning the messages to the 'password' field.
+            raise serializers.ValidationError({'password': list(e.messages)})
+
         return attrs
+
     def create(self, validated_data):
         user = User.objects.create_user(username=validated_data['username'], email=validated_data['email'])
         user.set_password(validated_data['password'])
@@ -54,6 +69,48 @@ class ProfileSerializer(serializers.ModelSerializer):
             'activity_level', 'weight_goal', 'calorie_goal_option', 
             'daily_calorie_intake', 'profile_picture', 'recommended_calories'
         ]
+        # --- THIS IS THE FIX ---
+    # These methods are automatically called for each specific field.
+    def validate_height(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Height must be a positive number.")
+        return value
+
+    def validate_weight(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Weight must be a positive number.")
+        return value
+    def validate_weight_goal(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Weight goal must be a positive number.")
+        return value
+
+    def validate_age(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Age must be a positive number.")
+        return value
+
+    def validate(self, data):
+        # This method is now only for multi-field validation.
+        instance = self.instance
+        full_data = {**instance.__dict__, **data} if instance else data
+
+        current_weight = full_data.get('weight')
+        weight_goal = full_data.get('weight_goal')
+        goal_option = full_data.get('calorie_goal_option')
+
+        if current_weight is not None and weight_goal is not None and goal_option:
+            if goal_option == 'deficit' and float(weight_goal) >= float(current_weight):
+                raise serializers.ValidationError({
+                    "weight_goal": "For a weight loss goal, your target weight must be less than your current weight."
+                })
+            
+            if goal_option == 'surplus' and float(weight_goal) <= float(current_weight):
+                raise serializers.ValidationError({
+                    "weight_goal": "For a weight gain goal, your target weight must be greater than your current weight."
+                })
+
+        return data
 
     def get_recommended_calories(self, obj):
         """

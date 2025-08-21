@@ -1,157 +1,128 @@
-import React, { useState, useEffect } from 'react'
-import apiClient from '../api/client'
+import React, { useState, useEffect, useRef } from 'react';
+import apiClient from '../api/client';
+import { Toaster, toast } from 'sonner';
+import { Send, Bot, User, Loader2, Trash2 } from 'lucide-react';
+import ChatMessage from '../components/chatbot/ChatMessage'; // We will create this next
+import ChatInput from '../components/chatbot/ChatInput';   // We will create this next
 
-const Chatbot = () => {
-  const [messages, setMessages] = useState([])
-  const [inputMessage, setInputMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+export default function Chatbot() {
+    const [history, setHistory] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingHistory, setIsFetchingHistory] = useState(true);
+    const chatEndRef = useRef(null);
 
-  useEffect(() => {
-    fetchConversations()
-  }, [])
+    // Function to fetch past conversations
+    const fetchHistory = async () => {
+        setIsFetchingHistory(true);
+        try {
+            const response = await apiClient.get('/chatbot/chat/');
+            setHistory(response.data);
+        } catch (error) {
+            toast.error('Failed to load conversation history.');
+        } finally {
+            setIsFetchingHistory(false);
+        }
+    };
 
-  const fetchConversations = async () => {
-    try {
-      const res = await apiClient.get('/chat/')
-      if (res.data) {
-        setMessages(res.data)
-      }
-    } catch (e) {
-      console.error('Failed to fetch conversations:', e)
-    }
-  }
+    useEffect(() => {
+        fetchHistory();
+    }, []);
 
-  const sendMessage = async (e) => {
-    e.preventDefault()
-    if (!inputMessage.trim() || loading) return
+    // Scroll to the bottom of the chat when new messages are added
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [history, isLoading]);
 
-    const userMessage = { role: 'user', content: inputMessage }
-    setMessages(prev => [...prev, userMessage])
-    setInputMessage('')
-    setLoading(true)
-    setError(null)
+    const handleSubmit = async (message) => {
+        if (!message.trim() || isLoading) return;
 
-    try {
-      const res = await apiClient.post('/chat/', { message: inputMessage })
-      const aiResponse = { role: 'assistant', content: res.data.response }
-      setMessages(prev => [...prev, aiResponse])
-    } catch (e) {
-      setError(e?.response?.data || 'Failed to send message')
-      // Remove the user message if AI failed to respond
-      setMessages(prev => prev.slice(0, -1))
-    } finally {
-      setLoading(false)
-    }
-  }
+        setIsLoading(true);
+        
+        // Temporarily add the user's message to the UI for a responsive feel
+        const tempUserMessage = { id: 'temp-user', user_message: message };
+        setHistory(prev => [...prev, tempUserMessage]);
 
-  const deleteMessage = async (messageId) => {
-    try {
-      await apiClient.delete(`/chat/${messageId}/`)
-      await fetchConversations()
-    } catch (e) {
-      setError('Failed to delete message')
-    }
-  }
+        try {
+            const response = await apiClient.post('/chatbot/chat/', { message });
+            // After getting the real response, refresh the entire history
+            // to get the saved message with its real ID and the AI response.
+            fetchHistory();
+        } catch (error) {
+            toast.error('An error occurred. Please try again.');
+            // Remove the temporary message if the API call fails
+            setHistory(prev => prev.filter(m => m.id !== 'temp-user'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-  const clearAll = async () => {
-    try {
-      await apiClient.delete('/chat/clear/')
-      setMessages([])
-    } catch (e) {
-      setError('Failed to clear conversations')
-    }
-  }
+    const handleDelete = async (id) => {
+        try {
+            await apiClient.delete(`/chatbot/chat/${id}/`);
+            toast.success('Conversation deleted.');
+            setHistory(prev => prev.filter(conv => conv.id !== id));
+        } catch (error) {
+            toast.error('Failed to delete conversation.');
+        }
+    };
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">AI Nutritionist</h2>
-        <button
-          onClick={clearAll}
-          className="text-red-600 hover:text-red-800 text-sm border border-red-200 rounded px-3 py-1"
-        >
-          Clear All
-        </button>
-      </div>
+    const handleClearAll = async () => {
+        if (window.confirm('Are you sure you want to delete your entire conversation history?')) {
+            try {
+                await apiClient.delete('/chatbot/chat/clear/');
+                toast.success('History cleared.');
+                setHistory([]);
+            } catch (error) {
+                toast.error('Failed to clear history.');
+            }
+        }
+    };
 
-      {error && <div className="text-red-600 text-sm mb-4 bg-red-50 border border-red-100 rounded p-2">{JSON.stringify(error)}</div>}
+    return (
+        <>
+            <Toaster position="top-center" richColors />
+            <div className="flex flex-col h-full max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                {/* Chat Header */}
+                <div className="p-4 border-b flex justify-between items-center">
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-800">AI Nutritionist</h1>
+                        <p className="text-sm text-gray-500">Your personal health assistant</p>
+                    </div>
+                    <button 
+                        onClick={handleClearAll}
+                        className="flex items-center gap-2 text-sm text-red-600 font-semibold hover:bg-red-50 p-2 rounded-lg"
+                    >
+                        <Trash2 size={16} />
+                        Clear History
+                    </button>
+                </div>
 
-      {/* Chat Messages */}
-      <div className="border rounded-lg h-96 overflow-y-auto p-4 mb-4 bg-gray-50">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            <p className="mb-2">👋 Welcome to your AI Nutritionist!</p>
-            <p className="text-sm">Ask me anything about nutrition, meal planning, or fitness advice.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-green-400 to-blue-500 text-white'
-                      : 'bg-white border text-gray-800'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm">{message.content}</p>
-                    {message.id && (
-                      <button
-                        onClick={() => deleteMessage(message.id)}
-                        className="text-xs opacity-70 hover:opacity-100"
-                      >
-                        ×
-                      </button>
+                {/* Chat History */}
+                <div className="flex-1 p-4 space-y-6 overflow-y-auto">
+                    {isFetchingHistory ? (
+                        <p className="text-center text-gray-500">Loading history...</p>
+                    ) : (
+                        history.map((conv) => (
+                            <ChatMessage key={conv.id} conversation={conv} onDelete={() => handleDelete(conv.id)} />
+                        ))
                     )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white border px-4 py-2 rounded-lg">
-                  <p className="text-gray-500">AI is thinking...</p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+                    
+                    {isLoading && (
+                        <div className="flex items-start gap-3">
+                            <Bot className="w-8 h-8 p-1.5 bg-green-100 text-green-600 rounded-full flex-shrink-0" />
+                            <div className="bg-gray-100 p-3 rounded-lg">
+                                <Loader2 className="animate-spin text-gray-500" />
+                            </div>
+                        </div>
+                    )}
 
-      {/* Message Input */}
-      <form onSubmit={sendMessage} className="flex gap-3">
-        <input
-          type="text"
-          placeholder="Ask about nutrition, meal planning, or fitness advice..."
-          className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          disabled={loading}
-        />
-        <button
-          type="submit"
-          disabled={loading || !inputMessage.trim()}
-          className={`px-6 py-2 rounded-lg text-white ${
-            loading || !inputMessage.trim()
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-green-400 to-blue-500 hover:brightness-105'
-          }`}
-        >
-          {loading ? 'Sending...' : 'Send'}
-        </button>
-      </form>
-    </div>
-  )
+                    <div ref={chatEndRef} />
+                </div>
+
+                {/* Message Input Form */}
+                <ChatInput onSendMessage={handleSubmit} isLoading={isLoading} />
+            </div>
+        </>
+    );
 }
-
-export default Chatbot
-
-
-
-
 

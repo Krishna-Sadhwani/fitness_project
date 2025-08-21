@@ -9,8 +9,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import LandingPage from './pages/LandingPage';
-import Register from './components/Register';
-import Login from './pages/Login';
+import Register from './components/auth/Register';
+import Login from './components/auth/Login';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import LogMeal from './pages/Meals';

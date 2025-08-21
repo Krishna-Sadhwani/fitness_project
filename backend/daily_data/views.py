@@ -10,9 +10,16 @@ class DailyDataViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filter the queryset to only return objects belonging to the current user.
-        return self.queryset.filter(user=self.request.user)
+        queryset = self.queryset.filter(user=self.request.user)
 
+# Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
+        date_filter = self.request.query_params.get('date', None)
+        
+        # If a date is provided in the request, filter the queryset by that date.
+        if date_filter:
+            queryset = queryset.filter(date=date_filter)
+            
+        return queryset
     def perform_create(self, serializer):
         # Automatically set the user to the logged-in user upon creation.
         serializer.save(user=self.request.user)

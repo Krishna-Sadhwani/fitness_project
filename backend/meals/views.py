@@ -23,9 +23,20 @@ class MealViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Ensures users can only see their own meals.
+        Ensures users can only see their own meals and filters by date.
         """
-        return Meal.objects.filter(user=self.request.user)
+        user = self.request.user
+        queryset = Meal.objects.filter(user=user)
+
+        # --- THIS IS THE FIX ---
+        # Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
+        date_filter = self.request.query_params.get('date', None)
+        
+        # If a date is provided, filter the queryset
+        if date_filter:
+            queryset = queryset.filter(date=date_filter)
+            
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """
@@ -156,6 +167,10 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
                 F('food_item__carbs') * F('quantity_g') / Decimal('100.0'),
                 output_field=DecimalField()
             ),
+            total_fats=Sum(
+                F('food_item__fats') * F('quantity_g') / Decimal('100.0'),
+                output_field=DecimalField()
+            )
         )
         
         # Extract the totals, defaulting to 0 if no meals were found for the day.
@@ -163,6 +178,7 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
         total_calories = daily_totals.get('total_calories') or Decimal('0.0')
         total_protein = daily_totals.get('total_protein') or Decimal('0.0')
         total_carbs = daily_totals.get('total_carbs') or Decimal('0.0')
+        total_fats = daily_totals.get('total_fats') or Decimal('0.0')
 
         # Calculate the remaining calories and determine a status message
         remaining_calories = daily_goal - total_calories
@@ -183,6 +199,7 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
             'total_calories': total_calories,
             'total_protein': total_protein,
             'total_carbs': total_carbs,
+            'total_fats': total_fats,
             'daily_goal': daily_goal,
             'remaining_calories': remaining_calories,
             'status_message': status_message

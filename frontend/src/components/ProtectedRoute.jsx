@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children }) => {
 
   // 2. After loading is finished, if there is no user, redirect to login.
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // 3. If loading is done and there is a user, show the protected page.

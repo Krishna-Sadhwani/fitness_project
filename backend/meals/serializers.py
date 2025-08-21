@@ -142,6 +142,8 @@ class DailyCalorieSerializer(serializers.Serializer):
     # Added new fields for total protein and carbs.
     total_protein = serializers.DecimalField(max_digits=8, decimal_places=2)
     total_carbs = serializers.DecimalField(max_digits=8, decimal_places=2)
+    total_fats = serializers.DecimalField(max_digits=8, decimal_places=2)
+
     daily_goal = serializers.DecimalField(max_digits=8, decimal_places=2)
     remaining_calories = serializers.DecimalField(max_digits=8, decimal_places=2)
     status_message = serializers.CharField(max_length=255)

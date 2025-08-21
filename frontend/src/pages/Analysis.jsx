@@ -30,8 +30,6 @@ const ChartCard = ({ title, icon, children }) => (
         </div>
     </div>
 );
-    
-   
 
 // --- Main Analysis Page Component ---
 export default function Analysis() {
@@ -73,22 +71,26 @@ export default function Analysis() {
         }
     };
 
-    // Data for the pie chart
     const macroData = report ? [
-        // Calculate total calories from each macro
         { name: 'Protein', value: Math.round(report.chart_data.reduce((sum, day) => sum + day.protein_g, 0) * 4) },
         { name: 'Carbs', value: Math.round(report.chart_data.reduce((sum, day) => sum + day.carbs_g, 0) * 4) },
         { name: 'Fats', value: Math.round(report.chart_data.reduce((sum, day) => sum + day.fats_g, 0) * 9) }
     ].filter(d => d.value > 0) : [];
     
-    
     const COLORS = ['#3B82F6', '#10B981', '#F59E0B'];
-     const RADIAN = Math.PI / 180;
+
+    const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    }
+
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
+                {`${(percent * 100).toFixed(0)}%`}
+            </text>
+        );
+    };
 
     return (
         <>
@@ -118,7 +120,7 @@ export default function Analysis() {
                 ) : (
                     <div className="space-y-8">
                         {/* Summary Stats Cards */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-center">
                                 <p className="text-sm text-gray-500">Weight Change</p>
                                 <p className={`text-2xl font-bold ${report.summary_stats.weight_change_kg < 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -155,8 +157,8 @@ export default function Analysis() {
                             </ChartCard>
                              <ChartCard title="Macro Distribution" icon={<PieChart size={20} className="text-blue-600" />}>
                                 <ResponsiveContainer>
-                                      <RechartsPieChart>
-                                        <Pie data={macroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label={renderCustomizedLabel}>
+                                     <RechartsPieChart>
+                                        <Pie data={macroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" labelLine={false} label={renderCustomizedLabel}>
                                             {macroData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                         </Pie>
                                         <Tooltip />
