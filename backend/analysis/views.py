@@ -6,7 +6,8 @@
 #
 import matplotlib
 matplotlib.use('Agg') # Add this line
-
+from groq import Groq
+from django.conf import settings
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -24,6 +25,7 @@ from rest_framework.permissions import IsAuthenticated
 # Import all the models we need to analyze
 from daily_data.models import WeightLog, DailySteps, WaterIntake, Sleep
 from meals.models import MealItem
+from meals.models import Meal
 
 from workouts.models import Workout
 
@@ -176,3 +178,77 @@ class ExportCsvView(AnalysisView):
         
         df_export.to_csv(path_or_buf=response, index_label='date')
         return response
+class DailyTipView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        today = datetime.now().date()
+        
+        calories_consumed = Meal.objects.filter(user=user, date=today).aggregate(total=Sum('total_calories'))['total']
+        calories_burned = Workout.objects.filter(user=user, date=today).aggregate(total=Sum('calories_burned'))['total']
+        
+        try:
+            steps = DailySteps.objects.get(user=user, date=today).step_count
+        except DailySteps.DoesNotExist:
+            steps = None
+
+        try:
+            sleep = Sleep.objects.get(user=user, date=today).duration_hours
+        except Sleep.DoesNotExist:
+            sleep = None
+
+        # --- THIS IS THE NEW, MORE ADVANCED PROMPT ---
+
+        # 1. Define the AI's persona and the user's main goal.
+        user_goal = user.profile.get_calorie_goal_option_display() or "their fitness goals"
+        prompt_persona = f"You are 'FitCoach', a friendly and insightful AI assistant. Your user's main goal is to {user_goal}."
+
+        # 2. Build a list of facts, only including data that exists.
+        facts = []
+        data_found = False
+        if user.profile.daily_calorie_intake:
+            facts.append(f"- Calorie Goal: {user.profile.daily_calorie_intake} kcal")
+        if calories_consumed is not None and calories_consumed > 0:
+            facts.append(f"- Calories Consumed: {calories_consumed:.0f} kcal")
+            data_found = True
+        if calories_burned is not None and calories_burned > 0:
+            facts.append(f"- Calories Burned from Workouts: {calories_burned:.0f} kcal")
+            data_found = True
+        if steps is not None and steps > 0:
+            facts.append(f"- Steps Taken: {steps}")
+            data_found = True
+        if sleep is not None and sleep > 0:
+            facts.append(f"- Last Night's Sleep: {sleep} hours")
+            data_found = True
+
+        if not data_found:
+            return Response({"tip": "Log your first activity of the day to unlock a personalized tip!"})
+
+        # 3. Provide clear, prioritized instructions and an example.
+        prompt_instructions = (
+            "\nHere are your instructions:\n"
+            "1. Analyze the user's data above.\n"
+            "2. Pick the single most relevant fact to comment on.\n"
+            "3. Write one short, motivational, and actionable tip based ONLY on that fact and the user's main goal.\n"
+            "4. The tip must be under 30 words, encouraging, and feel personal.\n"
+            "5. Do NOT invent any data or percentages.\n\n"
+            "Example of a good tip: 'Great job on your steps! Lets get u some nutrition dense meal to recover .IMPORTANT: Do not write anything before the tip. Your entire response must only be the tip itself.'"
+        )
+        
+        prompt = f"{prompt_persona}\n\nHere is the user's data for today:\n" + "\n".join(facts) + prompt_instructions
+
+        # 4. Call the Groq AI with the improved prompt.
+        try:
+            client = Groq(api_key=settings.GROQ_API_KEY)
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {"role": "user", "content": prompt},
+                ],
+                model="llama3-8b-8192",
+            )
+            ai_tip = chat_completion.choices[0].message.content
+            return Response({"tip": ai_tip})
+        except Exception as e:
+            return Response({"error": "Could not generate a tip at this time."}, status=500)
+
