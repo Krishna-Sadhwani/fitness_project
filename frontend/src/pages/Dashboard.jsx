@@ -113,7 +113,6 @@ export default function Dashboard() {
         <>
             <Toaster position="top-center" richColors duration={3000}/>
             <div className="p-4 md:p-8 space-y-8">
-                 {/* --- THIS IS THE FIX --- */}
                 {/* A new container for the top section of the dashboard */}
                 <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                     {/* Left Column: Title and Tip */}
@@ -160,14 +159,7 @@ export default function Dashboard() {
                         
                     </div>
                 )}
-                
-                {/* Placeholder for future graphs */}
-                {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Weekly Activity</h2>
-                    <div className="h-48 flex items-center justify-center bg-gray-100 rounded-lg">
-                        <p className="text-gray-500">Graphs and data analysis will be displayed here.</p>
-                    </div>
-                </div> */}
+            
             </div>
             {modalOpen && (
                 <LogDataModal 

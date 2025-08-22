@@ -12,7 +12,7 @@ class DailyDataViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
 
-# Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
+# Get the 'date' from the URL's query parameters 
         date_filter = self.request.query_params.get('date', None)
         
         # If a date is provided in the request, filter the queryset by that date.
@@ -24,7 +24,6 @@ class DailyDataViewSet(viewsets.ModelViewSet):
         # Automatically set the user to the logged-in user upon creation.
         serializer.save(user=self.request.user)
 
-# We create a specific ViewSet for each model, inheriting the custom logic from our base class.
 class DailyStepsViewSet(DailyDataViewSet):
     queryset = DailySteps.objects.all()
     serializer_class = DailyStepsSerializer

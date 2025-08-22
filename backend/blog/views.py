@@ -36,13 +36,10 @@ class BlogPostViewSet(viewsets.ModelViewSet):
 
         if user.is_authenticated:
             if my_posts_filter:
-                # --- FIX: Added ordering ---
                 return BlogPost.objects.filter(author=user).order_by('-created_at')
             
-            # --- FIX: Added ordering ---
             return (BlogPost.objects.filter(status='published') | BlogPost.objects.filter(author=user, status='draft')).distinct().order_by('-created_at')
         
-        # --- FIX: Added ordering ---
         return BlogPost.objects.filter(status='published').order_by('-created_at')
 
 

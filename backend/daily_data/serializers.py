@@ -13,7 +13,6 @@ class DailyStepsSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'calories_burned']
 
 class WaterIntakeSerializer(serializers.ModelSerializer):
-    # Include the 'glasses' property from the model
     glasses = serializers.FloatField(read_only=True)
     
     class Meta:

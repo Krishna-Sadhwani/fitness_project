@@ -1,15 +1,10 @@
-#
-# --- analysis/views.py (New File) ---
-#
-# This view is the core of the analysis feature. It fetches all necessary data,
-# processes it with pandas, generates charts, and creates a downloadable CSV.
-#
-import matplotlib
-matplotlib.use('Agg') # Add this line
+
+# import matplotlib
+# matplotlib.use('Agg') 
 from groq import Groq
 from django.conf import settings
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import seaborn as sns
 import io
 import base64
@@ -56,7 +51,6 @@ class AnalysisView(APIView):
             daily_fats=Sum(F('food_item__fats') * F('quantity_g') / Decimal('100.0'))
         )
 
-        # Populate the DataFrame with the fetched data
         df['weight_kg'] = pd.Series({pd.to_datetime(w.date): float(w.weight_kg) for w in weight_data})
         df['daily_steps'] = pd.Series({pd.to_datetime(s.date): s.step_count for s in steps_data})
         df['water_intake_ml'] = pd.Series({pd.to_datetime(w.date): w.milliliters for w in water_data})
@@ -104,13 +98,12 @@ class AnalysisView(APIView):
         }
 
         # --- Format Data for Charts ---
-        # Convert the DataFrame into a list of dictionaries, which is perfect for JSON
         df.index.name = 'date'
         chart_data = df.reset_index().to_dict(orient='records')
         
         # Format the date for better readability in charts
         for item in chart_data:
-            item['date'] = item['date'].strftime('%b %d') # e.g., "Aug 18"
+            item['date'] = item['date'].strftime('%b %d') 
 
         response_data = {
             'summary_stats': summary,
@@ -198,13 +191,10 @@ class DailyTipView(APIView):
         except Sleep.DoesNotExist:
             sleep = None
 
-        # --- THIS IS THE NEW, MORE ADVANCED PROMPT ---
 
-        # 1. Define the AI's persona and the user's main goal.
         user_goal = user.profile.get_calorie_goal_option_display() or "their fitness goals"
         prompt_persona = f"You are 'FitCoach', a friendly and insightful AI assistant. Your user's main goal is to {user_goal}."
 
-        # 2. Build a list of facts, only including data that exists.
         facts = []
         data_found = False
         if user.profile.daily_calorie_intake:
@@ -225,7 +215,6 @@ class DailyTipView(APIView):
         if not data_found:
             return Response({"tip": "Log your first activity of the day to unlock a personalized tip!"})
 
-        # 3. Provide clear, prioritized instructions and an example.
         prompt_instructions = (
             "\nHere are your instructions:\n"
             "1. Analyze the user's data above.\n"

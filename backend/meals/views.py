@@ -27,12 +27,8 @@ class MealViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         queryset = Meal.objects.filter(user=user)
-
-        # --- THIS IS THE FIX ---
-        # Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
         date_filter = self.request.query_params.get('date', None)
         
-        # If a date is provided, filter the queryset
         if date_filter:
             queryset = queryset.filter(date=date_filter)
             
@@ -54,7 +50,6 @@ class MealViewSet(viewsets.ModelViewSet):
         meal_date = validated.get('date')
         incoming_items = validated.get('meal_items', [])
 
-        # Try to find an existing meal for this user/date/type
         existing_meal = Meal.objects.filter(user=user, meal_type=meal_type, date=meal_date).first()
 
         if existing_meal:
@@ -88,15 +83,12 @@ class FoodSearchAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # --- THIS IS THE ONLY VALIDATION YOU NEED ---
-        # It checks if the query, after removing spaces, contains only letters.
         if not query.replace(' ', '').isalpha():
             return Response(
                 {"error": "Please enter a valid food name using only letters."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # ... (rest of your view logic) ...
             
         # Use the service module to search the APIs and save to the database.
         food_item, created = search_and_save_food(query)
@@ -120,10 +112,8 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     
     def list(self, request, *args, **kwargs):
-        # Ensure the user is authenticated before proceeding
         user = request.user
         
-        # Get the date from an optional query parameter, or use today's date
         request_date_str = request.query_params.get('date', None)
         try:
             request_date = date.fromisoformat(request_date_str) if request_date_str else date.today()
@@ -148,9 +138,7 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # --- CORRECTED AGGREGATION QUERY ---
-        # The calculation is now more robust by explicitly casting the denominator
-        # to a Decimal to ensure floating-point division at the database level.
+        # Calculate the total calories and other nutrients for the given date
         daily_totals = MealItem.objects.filter(
             meal__user=user, 
             meal__date=request_date
@@ -173,14 +161,11 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
             )
         )
         
-        # Extract the totals, defaulting to 0 if no meals were found for the day.
-        # It's good practice to convert to Decimal if the values might be None.
         total_calories = daily_totals.get('total_calories') or Decimal('0.0')
         total_protein = daily_totals.get('total_protein') or Decimal('0.0')
         total_carbs = daily_totals.get('total_carbs') or Decimal('0.0')
         total_fats = daily_totals.get('total_fats') or Decimal('0.0')
 
-        # Calculate the remaining calories and determine a status message
         remaining_calories = daily_goal - total_calories
         
         status_message = ""
@@ -190,7 +175,7 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
             status_message = f"You are under your daily goal. Remaining: {remaining_calories:.2f} calories."
         elif remaining_calories < 0 and remaining_calories >= -200:
             status_message = f"You have slightly exceeded your daily goal. Over by: {-remaining_calories:.2f} calories."
-        else: # remaining_calories < -200
+        else:
             status_message = f"You are significantly over your daily goal. Over by: {-remaining_calories:.2f} calories."
 
         # Prepare the data for the response
@@ -205,6 +190,6 @@ class DailyCalorieTrackerViewSet(viewsets.ViewSet):
             'status_message': status_message
         }
         
-        # Serialize and return the response
+       
         serializer = DailyCalorieSerializer(response_data)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -10,20 +10,17 @@ def search_and_save_food(query):
     Searches for a food item, checking our own database first before
     calling external APIs.
     """
-    # --- NEW: Check our database first ---
     try:
         # We use 'iexact' for a case-insensitive search
         food_item = FoodItem.objects.get(name__iexact=query)
         # If found, return it immediately. 'created' is False.
         return food_item, False
     except FoodItem.DoesNotExist:
-        # If not in our database, proceed to call the APIs
         pass
 
     # 1. Try to get data from Nutritionix
     nutritionix_data = _search_nutritionix(query)
     if nutritionix_data:
-        # Use get_or_create to save the new item
         food_item, created = FoodItem.objects.get_or_create(
             name=nutritionix_data['name'],
             defaults=nutritionix_data
@@ -60,7 +57,6 @@ def _search_nutritionix(query):
             food = result["foods"][0]
             serving_grams = food.get("serving_weight_grams")
             
-            # If serving_grams is not available or is 0, we can't normalize.
             if not serving_grams:
                 print(f"Warning: Nutritionix API did not provide a serving weight for '{query}'. Cannot normalize to 100g.")
                 return None
@@ -97,7 +93,6 @@ def _search_open_food_facts(query):
         
         if data.get("products"):
             product = data["products"][0]
-            # Use the *_100g fields directly from the API response
             nutriments = product.get("nutriments", {})
             return {
                 "name": product.get("product_name"),

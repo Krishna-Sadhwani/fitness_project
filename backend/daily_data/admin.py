@@ -4,5 +4,5 @@ from .models import DailySteps, WaterIntake, Sleep,WeightLog, UserGoals
 admin.site.register(DailySteps)
 admin.site.register(WaterIntake)
 admin.site.register(WeightLog)
-admin.site.register(UserGoals)  # Register the new UserGoals model  
+admin.site.register(UserGoals)  
 admin.site.register(Sleep)

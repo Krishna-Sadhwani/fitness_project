@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import apiClient from '../api/client';
 import { Toaster, toast } from 'sonner';
 import { Send, Bot, User, Loader2, Trash2 } from 'lucide-react';
-import ChatMessage from '../components/chatbot/ChatMessage'; // We will create this next
-import ChatInput from '../components/chatbot/ChatInput';   // We will create this next
+import ChatMessage from '../components/chatbot/ChatMessage'; 
+import ChatInput from '../components/chatbot/ChatInput';   
 
 export default function Chatbot() {
     const [history, setHistory] = useState([]);
@@ -44,12 +44,10 @@ export default function Chatbot() {
 
         try {
             const response = await apiClient.post('/chatbot/chat/', { message });
-            // After getting the real response, refresh the entire history
-            // to get the saved message with its real ID and the AI response.
+            
             fetchHistory();
         } catch (error) {
             toast.error('An error occurred. Please try again.');
-            // Remove the temporary message if the API call fails
             setHistory(prev => prev.filter(m => m.id !== 'temp-user'));
         } finally {
             setIsLoading(false);
@@ -97,7 +95,6 @@ export default function Chatbot() {
                     </button>
                 </div>
 
-                {/* Chat History */}
                 <div className="flex-1 p-4 space-y-6 overflow-y-auto">
                     {isFetchingHistory ? (
                         <p className="text-center text-gray-500">Loading history...</p>

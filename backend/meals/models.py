@@ -10,7 +10,6 @@ class FoodItem(models.Model):
     Stores nutritional data for a food item per 100g.
     """
     name = models.CharField(max_length=255)
-    # Changed to DecimalField for precision
     calories = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     protein = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     carbs = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -65,7 +64,6 @@ def update_meal_calories(sender, instance, **kwargs):
         )
     )
 
-    # Take the number out of the dictionary, defaulting to 0 if it's empty
     total_calories = aggregation_result['total'] or Decimal('0.0')
 
     meal.total_calories = total_calories

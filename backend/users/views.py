@@ -15,23 +15,18 @@ class UserRegistrationView(generics.CreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
-    permission_classes = [permissions.AllowAny] # Anyone can access this view to register.
+    permission_classes = [permissions.AllowAny] 
     
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
-        # Automatically create a new, empty Profile instance for the user.
-        # This ensures that every user has a profile from the moment they sign up.
         Profile.objects.create(user=user)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-# --- User Profile View (Updated) ---
-# This view is for fetching (GET) and updating (PATCH/PUT) the logged-in user's profile.
-# It replaces the previous ProfileViewSet for simplicity and security.
+
 class UserAccountView(generics.RetrieveUpdateAPIView):
     """
     An endpoint for the logged-in user to view and update their account details (username/email).
@@ -54,7 +49,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     """
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated] # Only logged-in users can access this.
+    permission_classes = [permissions.IsAuthenticated] 
 
     def get_object(self):
         """
@@ -79,7 +74,6 @@ class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
         """
         user = request.user
         try:
-            # Calculate suggestions using our utility function
             suggestion_data = calculate_calorie_suggestions(user.profile)
             
             # Serialize the data for the response
@@ -88,8 +82,6 @@ class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
             
         except ValueError as e:
-            # Handle cases where the profile is incomplete
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            # Handle other potential errors
             return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

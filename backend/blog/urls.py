@@ -7,7 +7,6 @@ router = routers.DefaultRouter()
 router.register(r'posts', BlogPostViewSet)
 
 # Create a nested router for comments under posts
-# This will create URLs like /api/blog/posts/{post_pk}/comments/
 posts_router = routers.NestedSimpleRouter(router, r'posts', lookup='post')
 posts_router.register(r'comments', CommentViewSet, basename='post-comments')
 

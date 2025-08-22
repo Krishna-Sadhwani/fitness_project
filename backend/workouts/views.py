@@ -8,8 +8,7 @@ from rest_framework.views import APIView
 from .models import Workout
 from .serializers import WorkoutSerializer,DailyWorkoutSummarySerializer
 from .api_services import get_workout_calories
-from users.models import Profile # Import the Profile model
-# --- NEW VIEW ADDED ---
+from users.models import Profile 
 class WorkoutCalculationView(APIView):
     """
     An endpoint to calculate calories for a workout description without saving it.
@@ -64,12 +63,7 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         queryset = Workout.objects.filter(user=user)
-
-        # --- THIS IS THE FIX ---
-        # Get the 'date' from the URL's query parameters (e.g., /?date=YYYY-MM-DD)
         date_filter = self.request.query_params.get('date', None)
-        
-        # If a date is provided, filter the queryset
         if date_filter:
             queryset = queryset.filter(date=date_filter)
             
@@ -83,10 +77,8 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         user = self.request.user
         description = serializer.validated_data.get('description')
 
-        # Get user's profile for accurate calorie calculation
         try:
             profile = user.profile
-            # Check for all required profile fields
             if not all([profile.weight, profile.height, profile.age, profile.gender]):
                 raise Profile.DoesNotExist
         except Profile.DoesNotExist:
@@ -94,7 +86,6 @@ class WorkoutViewSet(viewsets.ModelViewSet):
                 "User profile is incomplete. Please provide weight, height, age, and gender."
             )
 
-        # Call our API service to get calories
         try:
             calories = get_workout_calories(
                 description=description,
@@ -103,10 +94,8 @@ class WorkoutViewSet(viewsets.ModelViewSet):
                 age=profile.age,
                 gender=profile.gender
             )
-            # Save the workout with the logged-in user and calculated calories
             serializer.save(user=user, calories_burned=calories)
         except Exception as e:
-            # Handle errors from the Nutritionix API call
             raise serializers.ValidationError(str(e))
 class DailyWorkoutSummaryViewSet(viewsets.ViewSet):
     """

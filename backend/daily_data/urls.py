@@ -9,7 +9,6 @@ router.register(r'water', WaterIntakeViewSet, basename='waterintake')
 router.register(r'sleep', SleepViewSet, basename='sleep')
 
 urlpatterns = [
-    # --- ADD THIS LINE ---
     path('goals/', UserGoalsView.as_view(), name='user-goals'),
     
     path('', include(router.urls)),

@@ -9,7 +9,7 @@ import EditPost from '../components/blogs/EditPost';
 import PostCard from '../components/blogs/PostCard';
 
 export default function Blogs() {
-    const { user } = useAuth(); // Get the current user
+    const { user } = useAuth(); 
     const [view, setView] = useState('list');
     const [posts, setPosts] = useState([]);
     const [selectedPost, setSelectedPost] = useState(null);
@@ -55,7 +55,7 @@ export default function Blogs() {
             try {
                 await apiClient.delete(`/blog/posts/${postId}/`);
                 toast.success('Post deleted successfully!');
-                fetchPosts(); // Refresh the list
+                fetchPosts(); 
             } catch (error) {
                 toast.error('Failed to delete post.');
             }
@@ -113,8 +113,6 @@ export default function Blogs() {
                             </p>
                         ) : (
                             posts.map(post => {
-                                // --- THIS IS THE CORRECTED LOGIC ---
-                                // We use parseInt() to ensure we are comparing numbers, not a string and a number.
                                 const isAuthor = user && parseInt(user.user_id) === post.author.id;
 
                                 return (

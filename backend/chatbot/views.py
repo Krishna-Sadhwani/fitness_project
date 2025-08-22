@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated # <-- Import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated 
 from groq import Groq
 from django.conf import settings
 from .models import Conversation
@@ -86,8 +86,6 @@ def delete_message(request, message_id):
     Deletes a single message belonging to the authenticated user.
     """
     try:
-        # We use get_object_or_404 to automatically return a 404
-        # if the message doesn't exist or doesn't belong to the user.
         message = get_object_or_404(Conversation, id=message_id, user=request.user)
         message.delete()
         # Return a 204 No Content status on successful deletion
@@ -103,7 +101,6 @@ def clear_all_conversations(request):
     Deletes all messages for the authenticated user.
     """
     try:
-        # Filter all messages that belong to the current user
         conversations = Conversation.objects.filter(user=request.user)
         # Delete all objects in the queryset
         conversations.delete()

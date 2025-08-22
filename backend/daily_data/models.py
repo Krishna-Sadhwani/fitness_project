@@ -45,7 +45,7 @@ class DailySteps(models.Model):
 
     def save(self, *args, **kwargs):
         # --- Automatic Calorie Calculation ---
-        # We need the user's weight to make this calculation accurate.
+        #  the user's weight to make this calculation accurate.
         user_weight_kg = self.user.profile.weight
         if user_weight_kg:
             # A common formula: (MET * body weight in kg * 3.5) / 200 * duration in minutes
