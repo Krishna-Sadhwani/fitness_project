@@ -19,7 +19,6 @@ class Profile(models.Model):
         ('female', 'Female'),
     ])
     
-    # --- NEW FIELD ADDED ---
     # This field is essential for calculating TDEE (Total Daily Energy Expenditure).
     activity_level = models.CharField(max_length=20, null=True, blank=True, choices=[
         ('sedentary', 'Sedentary (little or no exercise)'),
@@ -47,10 +46,8 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
     def save(self, *args, **kwargs):
-        # Call the original save method first
         super().save(*args, **kwargs)
 
-        # Open the image file if it exists
         if self.profile_picture:
             img = Image.open(self.profile_picture.path)
 

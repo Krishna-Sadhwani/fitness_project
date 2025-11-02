@@ -19,15 +19,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
-        # --- THIS IS THE FIX ---
-        # This line runs all the built-in Django password checks.
-        # Create a temporary user instance with only the fields the User model knows about.
         temp_user_for_validation = User(username=attrs['username'], email=attrs['email'])
 
         try:
             validate_password(attrs['password'], user=temp_user_for_validation)
         except DjangoValidationError as e:
-            # We then raise a DRF ValidationError, correctly assigning the messages to the 'password' field.
             raise serializers.ValidationError({'password': list(e.messages)})
 
         return attrs
@@ -38,7 +34,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# --- UserAccountSerializer (Unchanged) ---
 class UserAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -52,7 +47,6 @@ class UserAccountSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A user with that email already exists.")
         return value
 
-# --- ProfileSerializer (Corrected) ---
 class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for the Profile model.
@@ -62,14 +56,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        # --- CHANGE 1: Added 'activity_level' to the list of fields ---
         # This ensures the field is accepted and saved when you update the profile.
         fields = [
             'id', 'user', 'height', 'weight', 'age', 'gender', 
             'activity_level', 'weight_goal', 'calorie_goal_option', 
             'daily_calorie_intake', 'profile_picture', 'recommended_calories'
         ]
-        # --- THIS IS THE FIX ---
     # These methods are automatically called for each specific field.
     def validate_height(self, value):
         if value is not None and value <= 0:
@@ -159,9 +151,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         else:
             return {'options': {'maintain': round(tdee)}, 'goal_type': 'maintain', 'maintenance_calories': round(tdee)}
 
-# --- CalorieGoalResponseSerializer (Unchanged) ---
-# Note: This is now somewhat redundant as the logic is in ProfileSerializer.
-# For consistency, you could refactor to use this, but the above will work.
 class CalorieSuggestionSerializer(serializers.Serializer):
     weekly_goal = serializers.CharField()
     daily_calories = serializers.IntegerField()

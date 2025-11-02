@@ -33,15 +33,10 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     # --- Authentication ---
-    # All user-related URLs are neatly grouped under the /auth/ path.
     path('auth/', include('users.urls')),
     
-    # Standard JWT token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-    # --- App Features ---
-    # Each app is given its own unique namespace to prevent conflicts.
     path('meals/', include('meals.urls')),
     path('workouts/', include('workouts.urls')),
     path('blog/', include('blog.urls')),

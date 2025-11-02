@@ -59,7 +59,6 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user.profile
 
 # --- Calorie Goal Suggestion View ---
-# This view provides personalized calorie intake suggestions.
 
 class CalorieGoalSuggestionViewSet(viewsets.ViewSet):
     """
