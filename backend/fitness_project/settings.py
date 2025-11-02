@@ -147,8 +147,9 @@ USE_TZ = True
 # CORS_ALLOWED_ORIGINS=['http://localhost:5173','https://fitkeep-api.onrender.com',]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',        # Your local React app
-    'https://fitkeep.onrender.com',   # Your FUTURE live React app
+    'http://localhost:5173',        #  local React app
+    'https://fitkeep.onrender.com', 
+      'https://fit-keep.onrender.com', # Frontend production URL
 ]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
