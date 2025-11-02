@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// 1. Get the "root" URL from the environment, fall back to localhost if not found.
+const API_ROOT = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
+// 2. Build the full base URL (this is the only part that changes)
+const API_BASE_URL = `${API_ROOT}/api`;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
 });
-
 // This function correctly reads the separate tokens.
 const getTokens = () => {
   try {

@@ -1,21 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, UserCircle ,LogOut} from 'lucide-react';
-import { useAuth } from '../../context/AuthContext'; // Correctly import the real hook
+import { useAuth } from '../../context/AuthContext';
 import { useState,useRef,useEffect } from 'react';
-import ConfirmationModal from '../ui/ConfirmationModal'; // Import the modal component
+import ConfirmationModal from '../ui/ConfirmationModal'; 
 import Logo from './Logo';
 import { motion, AnimatePresence } from 'framer-motion';
-import apiClient from '../../api/client'; // 1. Import apiClient
+import apiClient from '../../api/client'; 
 
 
-// --- UPDATED: Logo component now uses an <img> tag ---
 
 function Header({ toggleSidebar }) {
-// const { accessToken, logoutUser } = useAuth();
 
-//  const [isModalOpen, setModalOpen] = useState(false);
- const { accessToken, logoutUser, user } = useAuth(); // Get user for profile pic
+ const { accessToken, logoutUser, user } = useAuth(); 
  console.log("Access Token in Header:", accessToken);
 
   const [isModalOpen, setModalOpen] = useState(false);
@@ -23,7 +20,6 @@ const [isDropdownOpen, setDropdownOpen] = useState(false);
 const dropdownRef = useRef(null);
 
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
-// --- 3. FETCH PROFILE DATA ---
   useEffect(() => {
     const fetchProfilePicture = async () => {
       if (accessToken) {
@@ -38,11 +34,10 @@ const dropdownRef = useRef(null);
       }
     };
     fetchProfilePicture();
-  }, [accessToken]); // Re-run when the user logs in/out
+  }, [accessToken]); 
 
 
  const handleLogoutClick = () => {
-    // Instead of logging out directly, just open the modal
     setModalOpen(true);
   };
   useEffect(() => {
@@ -57,14 +52,10 @@ const dropdownRef = useRef(null);
 
 
    const handleConfirmLogout = () => {
-    // This is where the actual logout happens
     logoutUser();
     setModalOpen(false);
   };
-  // --- RENDER LOGIC ---
-  // We conditionally render a different header based on the login state.
   if (accessToken) {
-    // --- LOGGED-IN HEADER ---
     return (
       <>
         <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-sm border-b border-gray-200">
@@ -78,7 +69,6 @@ const dropdownRef = useRef(null);
               <Logo />
             </div>
             <div className="flex-1 flex justify-end items-center gap-4">
-               {/* --- THIS IS THE NEW DROPDOWN --- */}
                <div className="relative" ref={dropdownRef}>
                  <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                    {profilePictureUrl ? (
@@ -123,17 +113,10 @@ const dropdownRef = useRef(null);
     );
   }
 
-  // --- LOGGED-OUT (LANDING PAGE) HEADER ---
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm border-b border-gray-100">
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        {/* Logo */}
-        {/* <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white font-bold">F</div>
-          <span className="font-bold text-xl text-gray-800">Fitkeep</span>
-        </Link> */}
        <Logo/>
-        {/* --- UPDATED: Navigation Links --- */}
         <div className="hidden md:flex gap-8 text-gray-600 font-semibold">
           <a href="#features" className="hover:text-green-600 transition-colors">Features</a>
           <a href="#dashboard-preview" className="hover:text-green-600 transition-colors">How It Works</a>
@@ -141,7 +124,6 @@ const dropdownRef = useRef(null);
           <Link to="/blogs" className="hover:text-green-600 transition-colors">Blog</Link>
         </div>
 
-        {/* --- UPDATED: CTA Buttons --- */}
         <div className="flex gap-4 items-center">
             <Link to="/login" className="font-semibold text-gray-600 hover:text-green-600 transition-colors">Sign In</Link>
             <Link to="/register" className="bg-green-500 text-white rounded-full px-5 py-2 font-semibold shadow-sm hover:bg-green-600 transition-colors">Get Started</Link>

@@ -18,7 +18,6 @@ export default function Workouts() {
   const [workoutPreview, setWorkoutPreview] = useState(null);
 
 
-  // Fetch both workouts and the daily summary whenever the date changes
   useEffect(() => {
     fetchData();
   }, [selectedDate]);
@@ -69,7 +68,7 @@ export default function Workouts() {
       // 3. Call the original endpoint to save the workout
       await apiClient.post('/workouts/workouts/', {
         description: workoutPreview.description,
-        calories_burned: workoutPreview.calories_burned, // Pass the pre-calculated calories
+        calories_burned: workoutPreview.calories_burned, 
         date: selectedDate
       });
       toast.success('Workout logged successfully!');
@@ -86,14 +85,13 @@ export default function Workouts() {
       try {
         await apiClient.delete(`/workouts/workouts/${workoutId}/`);
         toast.success('Workout deleted successfully!');
-        fetchData(); // Refresh all data
+        fetchData(); 
       } catch (e) {
         toast.error('Failed to delete workout.');
       }
     }
   };
 
-  // --- Render Logic ---
 
   return (
     <>

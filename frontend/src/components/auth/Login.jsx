@@ -39,7 +39,6 @@ export default function Login() {
             <p className="text-gray-500 mt-2">Let's get you logged in.</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* --- THIS IS THE FIX --- */}
             {/* Using Flexbox for alignment instead of absolute positioning */}
             <div className={`flex items-center border rounded-lg focus-within:ring-2 ${error ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 focus-within:ring-green-500'}`}>
               <User className="mx-3 text-gray-400" size={20} />

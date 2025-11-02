@@ -52,8 +52,6 @@ export default function Register() {
             <p className="text-gray-500 mt-2">Start your fitness journey today.</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* --- THIS IS THE FIX --- */}
-            {/* Using Flexbox for alignment instead of absolute positioning */}
             <div className={`flex items-center border rounded-lg focus-within:ring-2 ${errors.username ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 focus-within:ring-green-500'}`}>
               <User className="mx-3 text-gray-400" size={20} />
               <input type="text" name="username" onChange={handleChange} className="w-full p-3 border-none rounded-r-lg focus:outline-none" placeholder="Username" required />
