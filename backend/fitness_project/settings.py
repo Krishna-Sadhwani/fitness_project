@@ -140,7 +140,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-CORS_ALLOWED_ORIGINS=['http://localhost:5173','fitkeep-api.onrender.com',]
+CORS_ALLOWED_ORIGINS=['http://localhost:5173','https://fitkeep-api.onrender.com',]
 
 
 # Static files (CSS, JavaScript, Images)
