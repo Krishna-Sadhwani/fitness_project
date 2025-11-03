@@ -234,7 +234,7 @@ class DailyTipView(APIView):
                 messages=[
                     {"role": "user", "content": prompt},
                 ],
-                model="llama3-8b-8192",
+                model='llama-3.1-8b-instant',
             )
             ai_tip = chat_completion.choices[0].message.content
             return Response({"tip": ai_tip})
