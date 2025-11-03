@@ -84,7 +84,7 @@ export default function Blogs() {
         <>
             <Toaster position="top-center" richColors />
             <div className="max-w-4xl mx-auto p-4 md:p-8">
-                <div className="flex justify-between items-center mb-8">
+                {/* <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">
                         {filter === 'all' ? 'All Posts' : 'My Posts'}
                     </h1>
@@ -101,8 +101,56 @@ export default function Blogs() {
                         <button onClick={handleGoToCreate} className="flex items-center gap-2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600">
                             <PlusCircle size={18} /><span>Write</span>
                         </button>
+                    </div> */}
+
+                {/* </div> */}
+                {/* --- THIS IS THE SECTION WE ARE FIXING --- */}
+                
+                {/* CHANGES MADE:
+                  1. Main Container: Changed from 'flex' to 'flex flex-col md:flex-row'.
+                     - 'flex-col':     Default. Stacks the title and buttons vertically on mobile.
+                     - 'md:flex-row':  On medium screens (768px+) and up, they go side-by-side.
+                     - 'md:justify-between': Only applies 'justify-between' on desktop.
+                     - 'md:items-center':  Only centers them on the cross-axis on desktop.
+                     - 'gap-4':         Adds vertical spacing on mobile, horizontal on desktop.
+                */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        {filter === 'all' ? 'All Posts' : 'My Posts'}
+                    </h1>
+                    
+                    {/*
+                      CHANGES MADE:
+                      2. Button Container: 
+                         - 'flex-col':    Default. Stacks the 'My Posts' and 'Write' buttons on small mobile.
+                         - 'sm:flex-row': On small screens (640px+) and up, they go side-by-side.
+                         - 'w-full':      Makes the container full-width on mobile.
+                         - 'md:w-auto':   Resets to auto-width on medium screens (desktop layout).
+                    */}
+                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                        
+                        {/* CHANGES MADE:
+                          3. Buttons:
+                             - 'w-full':    Makes buttons full-width on small mobile (when stacked).
+                             - 'sm:w-auto': Resets to auto-width on small screens+.
+                             - 'justify-center': Centers the icon/text inside the full-width button.
+                        */}
+                        {filter === 'all' ? (
+                            <button onClick={() => setFilter('my_posts')} className="flex items-center justify-center gap-2 bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 w-full sm:w-auto">
+                                <User size={18} /><span>My Posts</span>
+                            </button>
+                        ) : (
+                            <button onClick={() => setFilter('all')} className="flex items-center justify-center gap-2 bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 w-full sm:w-auto">
+                                <Globe size={18} /><span>All Posts</span>
+                            </button>
+                        )}
+                        <button onClick={handleGoToCreate} className="flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 w-full sm:w-auto">
+                            <PlusCircle size={18} /><span>Write</span>
+                        </button>
                     </div>
                 </div>
+
+                {/* --- END OF FIXED SECTION --- */}
                 {loading ? (
                     <p className="text-center text-gray-500">Loading posts...</p>
                 ) : (
